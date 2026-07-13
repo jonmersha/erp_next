@@ -1,0 +1,36 @@
+{
+  "name": "applet",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
+    "@tailwindcss/postcss": "^4.3.2",
+    "firebase": "^12.16.0",
+    "i18next": "^26.3.6",
+    "i18next-browser-languagedetector": "^8.2.1",
+    "lucide-react": "^1.24.0",
+    "motion": "^12.42.2",
+    "next": "^16.2.10",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-i18next": "^17.0.9",
+    "recharts": "^3.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.10",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^5"
+  }
+}

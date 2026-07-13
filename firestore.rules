@@ -1,0 +1,233 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: users
+    // Fields: uid (string), email (string), name (string), roles (list), unitId (string, optional)
+    //
+    // Collection: factories, warehouses, outlets, suppliers, rawMaterials, products
+    // Fields: various strings and numbers as defined in blueprint
+    //
+    // Collection: inventory, purchaseOrders, productionPlans, salesOrders
+    // Fields: various strings, numbers, and status enums
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function getUserData() {
+      return getUserDoc().data;
+    }
+
+    function getUserCompanyId() {
+      let data = getUserData();
+      return data != null ? data.get('companyId', '') : '';
+    }
+
+    function getUserRoles() {
+      let data = getUserData();
+      return data != null ? data.get('roles', []) : [];
+    }
+
+    function userExists() {
+      return getUserDoc().data != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        ((request.auth.token.email == "jonmersha@gmail.com" && request.auth.token.email_verified == true) ||
+         (userExists() && getUserRoles().hasAny(['admin'])));
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() && 
+        (isAdmin() || (userExists() && role in getUserRoles()));
+    }
+
+    function hasAnyRole(roles) {
+      return isAuthenticated() && 
+        (isAdmin() || (userExists() && getUserRoles().hasAny(roles)));
+    }
+
+    function belongsToCompany() {
+      return isAuthenticated() && 
+             (isAdmin() || (userExists() && 
+              ((request.resource != null && request.resource.data.companyId == getUserCompanyId()) ||
+               (resource != null && resource.data.companyId == getUserCompanyId()))));
+    }
+
+    function canReadCompanyData(data) {
+      return isAuthenticated() && 
+             (isAdmin() || (userExists() && data != null && data.companyId == getUserCompanyId()));
+    }
+
+    // Validation Helpers
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidInvoice(data) {
+      return data.orderId is string && data.orderId.size() < 50 &&
+             data.orderType in ['purchase', 'sales'] &&
+             data.amount is number && data.amount >= 0 &&
+             data.dueDate is string && data.dueDate.size() < 20 &&
+             data.status in ['draft', 'issued', 'paid', 'overdue', 'cancelled'] &&
+             data.companyId is string && data.companyId.size() < 50;
+    }
+
+    function isValidPayment(data) {
+      return data.invoiceId is string && data.invoiceId.size() < 50 &&
+             data.amount is number && data.amount >= 0 &&
+             data.paymentDate is string && data.paymentDate.size() < 20 &&
+             data.paymentMethod in ['cash', 'bank_transfer', 'check', 'credit_card'] &&
+             data.companyId is string && data.companyId.size() < 50;
+    }
+
+    function isValidFinancialPlan(data) {
+      return data.year is number && data.year >= 2020 &&
+             data.quarter in ['Q1', 'Q2', 'Q3', 'Q4'] &&
+             data.targetRevenue is number && data.targetRevenue >= 0 &&
+             data.targetExpense is number && data.targetExpense >= 0 &&
+             data.companyId is string && data.companyId.size() < 50;
+    }
+
+    // Companies
+    match /companies/{companyId} {
+      allow get: if isAuthenticated();
+      allow list: if isAuthenticated(); // Needed for finding by code
+      allow create: if isAuthenticated();
+      allow update: if isAdmin() && canReadCompanyData(resource.data);
+    }
+
+    // Users
+    match /users/{userId} {
+      allow get: if isAuthenticated();
+      allow list: if isAuthenticated() && userExists() && 
+                    (isAdmin() || (getUserData().companyId != null && resource.data.companyId == getUserData().companyId));
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isAdmin() || isOwner(userId);
+    }
+
+    // Master Data (Factories, Warehouses, Outlets, Suppliers, RawMaterials, Products)
+    match /factories/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['admin', 'factory_manager']) && belongsToCompany();
+    }
+    match /warehouses/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['admin', 'factory_manager']) && belongsToCompany();
+    }
+    match /outlets/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['admin', 'factory_manager']) && belongsToCompany();
+    }
+    match /suppliers/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['admin', 'procurement']) && belongsToCompany();
+    }
+    match /rawMaterials/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['admin', 'procurement']) && belongsToCompany();
+    }
+    match /products/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['admin', 'factory_manager', 'procurement']) && belongsToCompany();
+    }
+    match /categories/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['admin', 'factory_manager']) && belongsToCompany();
+    }
+
+    match /recipes/{id} {
+      allow get: if canReadCompanyData(resource.data);
+      allow list: if isAuthenticated() && userExists();
+      allow write: if hasAnyRole(['admin', 'factory_manager']) && belongsToCompany();
+    }
+    match /maintenanceLogs/{id} {
+      allow get: if canReadCompanyData(resource.data);
+      allow list: if isAuthenticated() && userExists();
+      allow write: if hasAnyRole(['admin', 'factory_manager']) && belongsToCompany();
+    }
+
+    // Operational Data
+    match /inventory/{id} {
+      allow get: if canReadCompanyData(resource.data);
+      allow list: if isAuthenticated() && userExists();
+      allow write: if hasAnyRole(['store', 'factory_manager']) && belongsToCompany();
+    }
+    match /purchaseOrders/{id} {
+      allow get: if canReadCompanyData(resource.data);
+      allow list: if isAuthenticated() && userExists();
+      allow write: if hasAnyRole(['procurement', 'finance', 'store']) && belongsToCompany();
+    }
+    match /productionPlans/{id} {
+      allow get: if canReadCompanyData(resource.data);
+      allow list: if isAuthenticated() && userExists();
+      allow write: if hasRole('factory_manager') && belongsToCompany();
+    }
+    match /procurementPlans/{id} {
+      allow get: if canReadCompanyData(resource.data);
+      allow list: if isAuthenticated() && userExists();
+      allow write: if hasRole('procurement') && belongsToCompany();
+    }
+    match /salesPlans/{id} {
+      allow get: if canReadCompanyData(resource.data);
+      allow list: if isAuthenticated() && userExists();
+      allow write: if hasRole('sales') && belongsToCompany();
+    }
+    match /salesOrders/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['sales', 'finance', 'store']) && belongsToCompany();
+    }
+    match /productionRuns/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['admin', 'factory_manager']) && belongsToCompany();
+    }
+    match /employees/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if isAdmin() && belongsToCompany();
+    }
+
+    // GRNs and Delivery Notes
+    match /grns/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasRole('store') && belongsToCompany();
+    }
+    match /deliveryNotes/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasRole('store') && belongsToCompany();
+    }
+
+    // Finance
+    match /invoices/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['finance', 'admin']) && belongsToCompany() && isValidInvoice(request.resource.data);
+    }
+    match /payments/{id} {
+      allow read: if canReadCompanyData(resource.data);
+      allow write: if hasAnyRole(['finance', 'admin']) && belongsToCompany() && isValidPayment(request.resource.data);
+    }
+    match /financialPlans/{id} {
+      allow get: if canReadCompanyData(resource.data);
+      allow list: if isAuthenticated() && userExists();
+      allow write: if hasAnyRole(['finance', 'admin']) && belongsToCompany() && isValidFinancialPlan(request.resource.data);
+    }
+
+    // Default Deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}

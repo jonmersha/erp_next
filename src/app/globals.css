@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "72", "72full", Arial, Helvetica, sans-serif;
+  --font-serif: "72", "72full", Arial, Helvetica, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+:root {
+  /* Corporate green and yellow */
+  --color-main: #16a34a;
+  --color-accent: #eab308;
+  --color-bg: #f0fdf4;
+  --color-text: #111827;
+  --color-surface: #ffffff;
+  --color-shell: #064e3b;
+  --color-shell-text: #ffffff;
+  --color-shell-hover: rgba(6, 78, 59, 0.2);
+  --color-border: #d1d5db;
+}
+
+[data-theme='dark'] {
+  --color-main: #22c55e;
+  --color-accent: #facc15;
+  --color-bg: #111827;
+  --color-text: #f9fafb;
+  --color-surface: #1f2937;
+  --color-shell: #030712;
+  --color-shell-text: #f9fafb;
+  --color-shell-hover: rgba(255, 255, 255, 0.1);
+  --color-border: #374151;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Base styles to flatten rounded corners globally avoiding playful look */
+* {
+  border-radius: 0;
+}
+.rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-\[2rem\] {
+  border-radius: 0.25rem !important;
+}
+.rounded-lg {
+  border-radius: 0.25rem !important;
+}
+.rounded-full {
+  border-radius: 9999px !important; /* Keep circles circular (avatars, badges) */
+}
+.shadow-sm, .shadow-lg {
+  box-shadow: 0 0 0 1px var(--color-border), 0 2px 4px rgba(0,0,0,0.05) !important;
+}
+
