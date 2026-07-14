@@ -11,7 +11,7 @@ const Badge: React.FC<BadgeProps> = ({ children, variant = 'neutral' }) => {
     warning: 'bg-amber-50 text-amber-600 border-amber-100',
     error: 'bg-rose-50 text-rose-600 border-rose-100',
     info: 'bg-blue-50 text-blue-600 border-blue-100',
-    neutral: 'bg-black/5 text-black/40 border-black/5'
+    neutral: 'bg-black/5 text-black/40 border-black/20'
   };
 
   return (

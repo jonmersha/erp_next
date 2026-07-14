@@ -119,7 +119,7 @@ const Recipes: React.FC = () => {
         <p className="text-[var(--color-text)]/40 mt-1">Define product recipes and ingredient requirements.</p>
       </header>
 
-      <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+      <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-bold text-[var(--color-text)]">Recipes</h3>
           <div className="flex space-x-3">
@@ -142,7 +142,7 @@ const Recipes: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {recipes.map(recipe => (
-            <div key={recipe.id} className="border border-[var(--color-text)]/5 p-6 rounded-2xl space-y-4">
+            <div key={recipe.id} className="border border-[var(--color-text)]/20 p-6 rounded-2xl space-y-4">
               <div className="flex items-center space-x-3">
                 <BookOpen className="text-[var(--color-main)]" />
                 <h4 className="font-bold text-lg text-[var(--color-text)]">{recipe.name}</h4>
@@ -160,12 +160,12 @@ const Recipes: React.FC = () => {
           <input
             type="text"
             placeholder="Recipe Name"
-            className="w-full p-3 bg-[var(--color-bg)] border border-[var(--color-text)]/5 rounded-xl"
+            className="w-full p-3 bg-[var(--color-bg)] border border-[var(--color-text)]/20 rounded-xl"
             value={newRecipe.name}
             onChange={e => setNewRecipe(prev => ({ ...prev, name: e.target.value }))}
           />
           <select
-            className="w-full p-3 bg-[var(--color-bg)] border border-[var(--color-text)]/5 rounded-xl"
+            className="w-full p-3 bg-[var(--color-bg)] border border-[var(--color-text)]/20 rounded-xl"
             value={newRecipe.productId}
             onChange={e => setNewRecipe(prev => ({ ...prev, productId: e.target.value }))}
           >
@@ -177,8 +177,8 @@ const Recipes: React.FC = () => {
             <h4 className="font-bold">BOM Ingredients</h4>
             {newRecipe.bom.map((ing, i) => <div key={i} className="text-sm">{ing.materialId}: {ing.quantity}</div>)}
             <div className="flex space-x-2">
-              <input type="text" placeholder="Material ID" className="flex-1 p-2 bg-[var(--color-bg)] border border-[var(--color-text)]/5 rounded" value={newIngredient.materialId} onChange={e => setNewIngredient(prev => ({...prev, materialId: e.target.value}))} />
-              <input type="number" placeholder="Qty" className="w-20 p-2 bg-[var(--color-bg)] border border-[var(--color-text)]/5 rounded" value={newIngredient.quantity} onChange={e => setNewIngredient(prev => ({...prev, quantity: parseInt(e.target.value) || 0}))} />
+              <input type="text" placeholder="Material ID" className="flex-1 p-2 bg-[var(--color-bg)] border border-[var(--color-text)]/20 rounded" value={newIngredient.materialId} onChange={e => setNewIngredient(prev => ({...prev, materialId: e.target.value}))} />
+              <input type="number" placeholder="Qty" className="w-20 p-2 bg-[var(--color-bg)] border border-[var(--color-text)]/20 rounded" value={newIngredient.quantity} onChange={e => setNewIngredient(prev => ({...prev, quantity: parseInt(e.target.value) || 0}))} />
               <button onClick={() => {
                 setNewRecipe(prev => ({...prev, bom: [...prev.bom, newIngredient]}));
                 setNewIngredient({materialId: '', quantity: 0});
@@ -190,7 +190,7 @@ const Recipes: React.FC = () => {
             <h4 className="font-bold">Processing Steps</h4>
             {newRecipe.processingSteps.map((step, i) => <div key={i} className="text-sm">{step.order}. {step.description} ({step.durationMinutes} mins)</div>)}
             <div className="flex space-x-2">
-              <input type="text" placeholder="Step description" className="flex-1 p-2 bg-[var(--color-bg)] border border-[var(--color-text)]/5 rounded" value={newStep} onChange={e => setNewStep(e.target.value)} />
+              <input type="text" placeholder="Step description" className="flex-1 p-2 bg-[var(--color-bg)] border border-[var(--color-text)]/20 rounded" value={newStep} onChange={e => setNewStep(e.target.value)} />
               <button onClick={() => {
                 setNewRecipe(prev => ({...prev, processingSteps: [...prev.processingSteps, {
                   order: prev.processingSteps.length + 1,

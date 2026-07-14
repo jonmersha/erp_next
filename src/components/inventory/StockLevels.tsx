@@ -46,10 +46,10 @@ const StockLevels: React.FC<StockLevelsProps> = ({
             placeholder="Search materials or products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-[var(--color-surface)] rounded-2xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 transition-all"
+            className="w-full pl-12 pr-4 py-3 bg-[var(--color-surface)] rounded-2xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 transition-all"
           />
         </div>
-        <div className="flex items-center space-x-2 bg-[var(--color-surface)] px-4 py-2 rounded-2xl border border-[var(--color-text)]/5">
+        <div className="flex items-center space-x-2 bg-[var(--color-surface)] px-4 py-2 rounded-2xl border border-[var(--color-text)]/20">
           <Filter size={18} className="text-[var(--color-text)]/20" />
           <select 
             value={selectedUnit}
@@ -74,7 +74,7 @@ const StockLevels: React.FC<StockLevelsProps> = ({
             : products.find(p => p.id === item.itemId);
           
           return (
-            <div key={item.id} className="bg-[var(--color-surface)] p-6 rounded-3xl shadow-sm border border-[var(--color-text)]/5 hover:shadow-md transition-all group">
+            <div key={item.id} className="bg-[var(--color-surface)] p-6 rounded-3xl shadow-sm border border-[var(--color-text)]/20 hover:shadow-md transition-all group">
               <div className="flex justify-between items-start mb-4">
                 <div className={`p-3 rounded-2xl ${item.itemType === 'raw' ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'}`}>
                   {item.itemType === 'raw' ? <Package size={24} /> : <WarehouseIcon size={24} />}

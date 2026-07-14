@@ -46,3 +46,15 @@ export const updateSalesPlan = async (id: string, plan: Partial<SalesPlan>) => {
 export const deleteSalesPlan = async (id: string) => {
   return await apiService.delete(`sales/plans/${id}`);
 };
+
+export const approveProductionPlan = async (id: string, approverId: string) => {
+  return await apiService.put(`production/plans/${id}/approve`, { approverId });
+};
+
+export const approveProcurementPlan = async (id: string, approverId: string) => {
+  return await apiService.put(`procurement/plans/${id}/approve`, { approverId });
+};
+
+export const approveSalesPlan = async (id: string, approverId: string) => {
+  return await apiService.put(`sales/plans/${id}/approve`, { approverId });
+};

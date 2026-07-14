@@ -42,10 +42,27 @@ export const updatePurchaseOrder = async (
 export const createSupplier = async (supplierForm: any, profile: UserProfile | null) => {
   return await apiService.post('procurement/suppliers', {
     ...supplierForm,
+    createdBy: profile?.uid,
     companyId: profile?.companyId || ''
   });
 };
 
+export const updateSupplier = async (supplierId: string, supplierForm: any) => {
+  return await apiService.put(`procurement/suppliers/${supplierId}`, supplierForm);
+};
+
+export const deleteSupplier = async (supplierId: string) => {
+  return await apiService.delete(`procurement/suppliers/${supplierId}`);
+};
+
 export const updateOrderStatus = async (orderId: string, status: PurchaseOrder['status']) => {
   return await apiService.put(`procurement/orders/${orderId}`, { status });
+};
+
+export const approvePurchaseOrder = async (orderId: string, approverId: string) => {
+  return await apiService.put(`procurement/orders/${orderId}/approve`, { approverId });
+};
+
+export const approveSupplier = async (supplierId: string, approverId: string) => {
+  return await apiService.put(`procurement/suppliers/${supplierId}/approve`, { approverId });
 };

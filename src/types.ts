@@ -43,6 +43,7 @@ export interface Factory {
   name: string;
   location: string;
   companyId: string;
+  managerId?: string;
 }
 
 export interface Warehouse {
@@ -58,6 +59,8 @@ export interface SalesOutlet {
   name: string;
   location: string;
   companyId: string;
+  factory_id?: string;
+  managerId?: string;
 }
 
 export interface Supplier {
@@ -66,6 +69,11 @@ export interface Supplier {
   contact: string;
   email?: string;
   companyId: string;
+  certificate_url?: string;
+  is_authorized?: boolean;
+  status?: 'pending_approval' | 'active' | 'inactive';
+  createdBy?: string;
+  approvedBy?: string;
 }
 
 export interface RawMaterial {
@@ -117,10 +125,11 @@ export interface PurchaseOrder {
   supplierName: string;
   factoryId: string;
   warehouseId: string;
-  status: 'pending' | 'approved' | 'shipped' | 'received' | 'cancelled';
+  status: 'pending_approval' | 'pending' | 'approved' | 'shipped' | 'received' | 'cancelled';
   items: PurchaseOrderItem[];
   totalAmount: number;
-  createdBy: string;
+  createdBy?: string;
+  approvedBy?: string;
   createdAt: string;
   companyId: string;
 }
@@ -163,7 +172,9 @@ export interface ProductionPlan {
   year: number;
   totalQuantity: number;
   quarterlyPlans: QuarterlyPlan[];
-  status: 'draft' | 'approved';
+  status: 'draft' | 'pending_approval' | 'approved';
+  createdBy?: string;
+  approvedBy?: string;
   companyId: string;
 }
 
@@ -189,7 +200,9 @@ export interface ProcurementPlan {
   year: number;
   totalQuantity: number;
   quarterlyPlans: QuarterlyPlan[];
-  status: 'planned' | 'ordered' | 'received' | 'approved';
+  status: 'planned' | 'pending_approval' | 'ordered' | 'received' | 'approved';
+  createdBy?: string;
+  approvedBy?: string;
   companyId: string;
 }
 
@@ -200,7 +213,9 @@ export interface SalesPlan {
   year: number;
   totalQuantity: number;
   quarterlyPlans: QuarterlyPlan[];
-  status: 'draft' | 'approved';
+  status: 'draft' | 'pending_approval' | 'approved';
+  createdBy?: string;
+  approvedBy?: string;
   companyId: string;
 }
 
@@ -287,11 +302,25 @@ export interface DeliveryNote {
   companyId: string;
 }
 
+export interface Department {
+  id: string;
+  name: string;
+  description?: string;
+  parentDepartmentId?: string;
+  managerId?: string;
+  companyId: string;
+  managerName?: string;
+  parentDepartmentName?: string;
+}
+
 export interface Employee {
   id: string;
   name: string;
   email: string;
-  department: string;
+  departmentId?: string;
+  departmentName?: string;
+  managerId?: string;
+  managerName?: string;
   role: string;
   salary: number;
   factoryId?: string;

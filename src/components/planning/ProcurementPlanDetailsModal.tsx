@@ -28,7 +28,7 @@ const ProcurementPlanDetailsModal: React.FC<Props> = ({ isOpen, onClose, plan, m
           <h4 className="font-bold text-lg">Hierarchical Plan</h4>
         </div>
         {(plan.quarterlyPlans || []).map(q => (
-          <div key={q.quarter} className="border-b border-black/5 pb-2">
+          <div key={q.quarter} className="border-b border-black/20 pb-2">
             <p className="font-bold">{q.quarter}: {(q.quantity || 0).toLocaleString()} units</p>
             <div className="grid grid-cols-3 gap-2 text-xs">
               {(q.monthlyPlans || []).map(m => (
@@ -38,7 +38,7 @@ const ProcurementPlanDetailsModal: React.FC<Props> = ({ isOpen, onClose, plan, m
           </div>
         ))}
 
-        <div className="flex justify-end space-x-3 mt-8 border-t border-black/5 pt-4">
+        <div className="flex justify-end space-x-3 mt-8 border-t border-black/20 pt-4">
           <button 
             onClick={() => { onEdit(); }}
             className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-[var(--color-main)] text-white hover:bg-[var(--color-main)]/90"

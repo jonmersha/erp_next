@@ -20,8 +20,8 @@ const MovementHistory: React.FC<MovementHistoryProps> = ({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 overflow-hidden">
-          <div className="p-6 border-b border-[var(--color-text)]/5 flex justify-between items-center">
+        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
+          <div className="p-6 border-b border-[var(--color-text)]/20 flex justify-between items-center">
             <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Recent Receipts (GRNs)</h3>
             <ArrowDownLeft size={20} className="text-emerald-600" />
           </div>
@@ -52,8 +52,8 @@ const MovementHistory: React.FC<MovementHistoryProps> = ({
           </div>
         </div>
 
-        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 overflow-hidden">
-          <div className="p-6 border-b border-[var(--color-text)]/5 flex justify-between items-center">
+        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
+          <div className="p-6 border-b border-[var(--color-text)]/20 flex justify-between items-center">
             <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Recent Shipments (DNs)</h3>
             <ArrowUpRight size={20} className="text-indigo-600" />
           </div>

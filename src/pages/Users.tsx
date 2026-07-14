@@ -178,8 +178,8 @@ const Users: React.FC = () => {
       </div>
 
       {/* Main Table Area */}
-      <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 overflow-hidden flex flex-col">
-        <div className="p-6 border-b border-[var(--color-text)]/5 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[var(--color-bg)]/20">
+      <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden flex flex-col">
+        <div className="p-6 border-b border-[var(--color-text)]/20 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[var(--color-bg)]/20">
           <h3 className="font-serif font-bold text-lg text-[var(--color-text)] flex items-center gap-2">
             <UsersIcon size={20} className="text-[var(--color-main)]" />
             System Directory
@@ -206,7 +206,7 @@ const Users: React.FC = () => {
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[var(--color-bg)]/80 text-[10px] font-bold text-[var(--color-text)]/40 uppercase tracking-widest border-b border-[var(--color-text)]/5">
+                <tr className="bg-[var(--color-bg)]/80 text-[10px] font-bold text-[var(--color-text)]/40 uppercase tracking-widest border-b border-[var(--color-text)]/20">
                   <th className="px-6 py-5">User Identity</th>
                   <th className="px-6 py-5">Status</th>
                   <th className="px-6 py-5">System Roles</th>
@@ -334,7 +334,7 @@ const Users: React.FC = () => {
                   className={`flex-1 p-4 rounded-2xl border-2 transition-all font-bold ${
                     (!selectedUser.status || selectedUser.status === 'active')
                       ? 'bg-emerald-50 text-emerald-600 border-emerald-200 shadow-sm'
-                      : 'bg-[var(--color-surface)] text-[var(--color-text)]/40 border-[var(--color-text)]/5 hover:bg-[var(--color-bg)]'
+                      : 'bg-[var(--color-surface)] text-[var(--color-text)]/40 border-[var(--color-text)]/20 hover:bg-[var(--color-bg)]'
                   }`}
                 >
                   Active
@@ -345,7 +345,7 @@ const Users: React.FC = () => {
                   className={`flex-1 p-4 rounded-2xl border-2 transition-all font-bold ${
                     selectedUser.status === 'inactive'
                       ? 'bg-rose-50 text-rose-600 border-rose-200 shadow-sm'
-                      : 'bg-[var(--color-surface)] text-[var(--color-text)]/40 border-[var(--color-text)]/5 hover:bg-[var(--color-bg)]'
+                      : 'bg-[var(--color-surface)] text-[var(--color-text)]/40 border-[var(--color-text)]/20 hover:bg-[var(--color-bg)]'
                   }`}
                 >
                   Inactive

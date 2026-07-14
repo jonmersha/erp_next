@@ -310,7 +310,7 @@ const Dashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Quick Product View */}
-        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 p-8">
+        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-serif font-bold text-[var(--color-text)]">Quick Product View</h3>
@@ -323,7 +323,7 @@ const Dashboard: React.FC = () => {
               const productInventory = inventory.filter(i => i.productId === product.id);
               const totalStock = productInventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
               return (
-                <div key={product.id} className="p-4 rounded-2xl bg-[var(--color-bg)]/50 border border-[var(--color-text)]/5 transition-all hover:border-[var(--color-main)]/20">
+                <div key={product.id} className="p-4 rounded-2xl bg-[var(--color-bg)]/50 border border-[var(--color-text)]/20 transition-all hover:border-[var(--color-main)]/20">
                   <p className="font-bold text-[var(--color-text)] text-sm truncate">{product.name}</p>
                   <p className="text-xs text-[var(--color-text)]/40 mt-1">{product.category}</p>
                   <div className="mt-3 flex justify-between items-end">
@@ -345,7 +345,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Stock Alerts */}
-        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 p-8">
+        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-serif font-bold text-[var(--color-text)]">Stock Alerts</h3>
@@ -390,7 +390,7 @@ const Dashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Production Progress Chart */}
-        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 p-8">
+        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-serif font-bold text-[var(--color-text)]">Production Progress</h3>
@@ -416,7 +416,7 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Procurement Status Chart */}
-        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 p-8">
+        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-serif font-bold text-[var(--color-text)]">Procurement Status</h3>
@@ -459,7 +459,7 @@ const Dashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Planning Trend Chart */}
-        <div className="lg:col-span-3 bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 p-8">
+        <div className="lg:col-span-3 bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 p-8">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h3 className="text-xl font-serif font-bold text-[var(--color-text)]">Planning Trend</h3>
@@ -484,7 +484,7 @@ const Dashboard: React.FC = () => {
 
         <div className="lg:col-span-2 space-y-8">
           {/* Recent Sales Orders */}
-          <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 p-8">
+          <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 p-8">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-xl font-serif font-bold text-[var(--color-text)]">Recent Sales Orders</h3>
               <button 
@@ -500,7 +500,7 @@ const Dashboard: React.FC = () => {
                 <div 
                   key={order.id} 
                   onClick={() => setSelectedOrder(order)}
-                  className="flex items-center justify-between p-4 rounded-2xl bg-[var(--color-bg)]/50 border border-[var(--color-text)]/5 cursor-pointer hover:bg-[var(--color-text)]/80 transition-all"
+                  className="flex items-center justify-between p-4 rounded-2xl bg-[var(--color-bg)]/50 border border-[var(--color-text)]/20 cursor-pointer hover:bg-[var(--color-text)]/80 transition-all"
                 >
                   <div className="flex items-center space-x-4">
                     <div className="w-10 h-10 bg-[var(--color-surface)] rounded-xl flex items-center justify-center shadow-sm">
@@ -526,7 +526,7 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Recent Production Runs */}
-          <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 p-8">
+          <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 p-8">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-xl font-serif font-bold text-[var(--color-text)]">Manufacturing Schedule</h3>
               <button 
@@ -544,7 +544,7 @@ const Dashboard: React.FC = () => {
                     <div 
                       key={run.id} 
                       onClick={() => setSelectedRun(run)}
-                      className="flex items-center justify-between p-4 rounded-2xl bg-[var(--color-bg)]/50 border border-[var(--color-text)]/5 cursor-pointer hover:bg-[var(--color-text)]/80 transition-all"
+                      className="flex items-center justify-between p-4 rounded-2xl bg-[var(--color-bg)]/50 border border-[var(--color-text)]/20 cursor-pointer hover:bg-[var(--color-text)]/80 transition-all"
                     >
                     <div className="flex items-center space-x-4">
                       <div className="w-10 h-10 bg-[var(--color-surface)] rounded-xl flex items-center justify-center shadow-sm">
@@ -584,7 +584,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 p-8">
+        <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 p-8">
           <h3 className="text-xl font-serif font-bold text-[var(--color-text)] mb-8">Unit Distribution</h3>
           <div className="space-y-6">
             <div className="space-y-2 cursor-pointer group" onClick={() => router.push('/production')}>
@@ -663,7 +663,7 @@ const Dashboard: React.FC = () => {
               <p className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Order Items</p>
               <div className="space-y-2">
                 {selectedOrder.items?.map((item: any, index: number) => (
-                  <div key={index} className="flex justify-between items-center p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5">
+                  <div key={index} className="flex justify-between items-center p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20">
                     <div>
                       <p className="font-bold text-sm text-[var(--color-text)]">{item.productName}</p>
                       <p className="text-xs text-[var(--color-text)]/40">Qty: {item.quantity} × ${item.price.toLocaleString()}</p>
@@ -674,7 +674,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[var(--color-text)]/5 flex justify-between items-center">
+            <div className="pt-4 border-t border-[var(--color-text)]/20 flex justify-between items-center">
               <p className="text-sm font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Total Amount</p>
               <p className="text-2xl font-serif font-bold text-[var(--color-text)]">
                 ${(selectedOrder.totalAmount || 0).toLocaleString()}
@@ -702,11 +702,11 @@ const Dashboard: React.FC = () => {
         {selectedRun && (
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/5">
+              <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">Run ID</p>
                 <p className="font-mono font-bold text-[var(--color-main)]">#{selectedRun.id.slice(0, 12)}</p>
               </div>
-              <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/5">
+              <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">Status</p>
                 <div className={`inline-block mt-1 text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full ${
                   selectedRun.status === 'completed' ? 'text-emerald-600 bg-emerald-50' : 
@@ -731,7 +731,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-[var(--color-bg)] p-6 rounded-3xl border border-[var(--color-text)]/5">
+            <div className="bg-[var(--color-bg)] p-6 rounded-3xl border border-[var(--color-text)]/20">
               <div className="flex justify-between items-end mb-4">
                 <div>
                   <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">Production Progress</p>

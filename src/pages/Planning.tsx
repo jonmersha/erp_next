@@ -43,7 +43,7 @@ const Planning: React.FC = () => {
         ))}
       </div>
 
-      <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+      <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
         {activeTab === 'production' && <ProductionPlanList factories={factories} products={products} materials={materials} />}
         {activeTab === 'procurement' && <ProcurementPlanList materials={materials} warehouses={warehouses} factories={factories} />}
         {activeTab === 'sales' && <SalesPlanList products={products} factories={factories} />}

@@ -84,7 +84,7 @@ const Quality: React.FC = () => {
       </header>
 
       {showForm && (
-        <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/5 shadow-xl">
+        <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/20 shadow-xl">
           <h3 className="text-xl font-bold text-[var(--color-main)] mb-6">Create Inspection Record</h3>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-6">
@@ -93,7 +93,7 @@ const Quality: React.FC = () => {
                 <select 
                   value={form.referenceType}
                   onChange={e => setForm({ ...form, referenceType: e.target.value as any, referenceId: '' })}
-                  className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+                  className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
                 >
                   <option value="production_run">Production Run</option>
                   <option value="grn">Goods Receipt Note (GRN)</option>
@@ -108,7 +108,7 @@ const Quality: React.FC = () => {
                     required
                     value={form.referenceId}
                     onChange={e => setForm({ ...form, referenceId: e.target.value })}
-                    className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]"
+                    className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]"
                   >
                     <option value="">Select Production Run</option>
                     {productionRuns.map(run => (
@@ -121,7 +121,7 @@ const Quality: React.FC = () => {
                     required
                     value={form.referenceId}
                     onChange={e => setForm({ ...form, referenceId: e.target.value })}
-                    className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]"
+                    className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]"
                   >
                     <option value="">Select GRN</option>
                     {grns.map(grn => (
@@ -134,7 +134,7 @@ const Quality: React.FC = () => {
                     required
                     value={form.referenceId}
                     onChange={e => setForm({ ...form, referenceId: e.target.value })}
-                    className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]"
+                    className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]"
                   >
                     <option value="">Select Inventory Batch</option>
                     {inventory.map(inv => (
@@ -151,7 +151,7 @@ const Quality: React.FC = () => {
                 <select 
                   value={form.status}
                   onChange={e => setForm({ ...form, status: e.target.value as any })}
-                  className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+                  className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
                 >
                   <option value="pending">Pending</option>
                   <option value="passed">Passed</option>
@@ -166,7 +166,7 @@ const Quality: React.FC = () => {
                   value={form.itemId}
                   onChange={e => setForm({ ...form, itemId: e.target.value })}
                   placeholder="e.g. PRD-XYZ"
-                  className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]"
+                  className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]"
                 />
               </div>
             </div>
@@ -178,11 +178,11 @@ const Quality: React.FC = () => {
                 onChange={e => setForm({ ...form, notes: e.target.value })}
                 rows={3}
                 placeholder="Enter observations, non-compliances, or measurements..."
-                className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)] resize-none"
+                className="w-full p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)] resize-none"
               />
             </div>
 
-            <div className="flex justify-end space-x-4 pt-4 border-t border-[var(--color-text)]/5">
+            <div className="flex justify-end space-x-4 pt-4 border-t border-[var(--color-text)]/20">
               <button 
                 type="button"
                 onClick={() => setShowForm(false)}
@@ -202,7 +202,7 @@ const Quality: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-[var(--color-surface)] rounded-3xl border border-[var(--color-text)]/5 overflow-hidden">
+      <div className="bg-[var(--color-surface)] rounded-3xl border border-[var(--color-text)]/20 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="text-[10px] uppercase tracking-widest text-[var(--color-text)]/40 bg-[var(--color-text)]/[0.02]">

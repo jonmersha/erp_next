@@ -30,6 +30,7 @@ const MasterData: React.FC = () => {
   const [rawMaterials, setRawMaterials] = useState<RawMaterial[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [outlets, setOutlets] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
 
   // UI States
   const [activeTab, setActiveTab] = useState<'factories' | 'warehouses' | 'products' | 'raw' | 'categories' | 'outlets'>('factories');
@@ -38,25 +39,26 @@ const MasterData: React.FC = () => {
   const [editingItem, setEditingItem] = useState<any>(null);
 
   // Form States
-  const [factoryForm, setFactoryForm] = useState({ name: '', location: '' });
-  const [warehouseForm, setWarehouseForm] = useState({ name: '', location: '', factoryId: '' });
+  const [factoryForm, setFactoryForm] = useState({ name: '', location: '', managerId: '' });
+  const [warehouseForm, setWarehouseForm] = useState({ name: '', location: '', factoryId: '', managerId: '' });
   const [productForm, setProductForm] = useState({ name: '', categoryId: '', packageSize: '', unit: '', price: 0, imageUrl: '' });
   const [rawForm, setRawForm] = useState({ name: '', unit: 'kg' as RawMaterial['unit'] });
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
-  const [outletForm, setOutletForm] = useState({ name: '', location: '' });
+  const [outletForm, setOutletForm] = useState({ name: '', location: '', factory_id: '' });
 
   const fetchData = async () => {
     if (!profile?.companyId) return;
     try {
       const companyId = profile.companyId;
       
-      const [factoriesData, warehousesData, productsData, rawMaterialsData, categoriesData, outletsData] = await Promise.all([
+      const [factoriesData, warehousesData, productsData, rawMaterialsData, categoriesData, outletsData, usersData] = await Promise.all([
         fetchCollection<Factory>('factories', companyId),
         fetchCollection<Warehouse>('warehouses', companyId),
         fetchCollection<Product>('products', companyId),
         fetchCollection<RawMaterial>('rawMaterials', companyId),
         fetchCollection<Category>('categories', companyId),
         fetchCollection<any>('outlets', companyId),
+        fetchCollection<any>('users', companyId),
       ]);
 
       setFactories(factoriesData);
@@ -65,6 +67,7 @@ const MasterData: React.FC = () => {
       setRawMaterials(rawMaterialsData);
       setCategories(categoriesData);
       setOutlets(outletsData);
+      setUsers(usersData);
     } catch (error) {
       console.error("Error fetching master data:", error);
     }
@@ -79,12 +82,12 @@ const MasterData: React.FC = () => {
   const handleEdit = (item: any) => {
     setEditingItem(item);
     switch (activeTab) {
-      case 'factories': setFactoryForm({ name: item.name, location: item.location }); break;
-      case 'warehouses': setWarehouseForm({ name: item.name, location: item.location, factoryId: item.factoryId }); break;
+      case 'factories': setFactoryForm({ name: item.name, location: item.location, managerId: item.managerId || '' }); break;
+      case 'warehouses': setWarehouseForm({ name: item.name, location: item.location, factoryId: item.factoryId, managerId: item.managerId || '' }); break;
       case 'products': setProductForm({ name: item.name, categoryId: item.categoryId, packageSize: item.packageSize, unit: item.unit, price: item.price, imageUrl: item.imageUrl || '' }); break;
       case 'raw': setRawForm({ name: item.name, unit: item.unit }); break;
       case 'categories': setCategoryForm({ name: item.name, description: item.description }); break;
-      case 'outlets': setOutletForm({ name: item.name, location: item.location }); break;
+      case 'outlets': setOutletForm({ name: item.name, location: item.location, factory_id: item.factory_id || '' }); break;
     }
     setIsModalOpen(true);
   };
@@ -131,12 +134,12 @@ const MasterData: React.FC = () => {
       setIsModalOpen(false);
       setEditingItem(null);
       // Reset forms
-      setFactoryForm({ name: '', location: '' });
-      setWarehouseForm({ name: '', location: '', factoryId: '' });
+      setFactoryForm({ name: '', location: '', managerId: '' });
+      setWarehouseForm({ name: '', location: '', factoryId: '', managerId: '' });
       setProductForm({ name: '', categoryId: '', packageSize: '', unit: '', price: 0, imageUrl: '' });
       setRawForm({ name: '', unit: 'kg' });
       setCategoryForm({ name: '', description: '' });
-      setOutletForm({ name: '', location: '' });
+      setOutletForm({ name: '', location: '', factory_id: '' });
     } catch (error) {
       console.error("Error saving item:", error);
     } finally {
@@ -152,7 +155,7 @@ const MasterData: React.FC = () => {
           factories: 'factories',
           warehouses: 'warehouses',
           products: 'products',
-          rawMaterials: 'rawMaterials',
+          raw: 'rawMaterials',
           categories: 'categories',
           outlets: 'outlets'
         };
@@ -174,7 +177,7 @@ const MasterData: React.FC = () => {
     );
   }
 
-  const canEdit = isAdmin || profile?.role === 'admin';
+  const canEdit = canManage;
 
   return (
     <div className="space-y-8">
@@ -207,7 +210,7 @@ const MasterData: React.FC = () => {
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             className={`flex items-center space-x-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === tab.id ? 'bg-[var(--color-main)] text-white shadow-md' : 'bg-[var(--color-surface)] text-[var(--color-text)]/40 border border-[var(--color-text)]/5 hover:bg-[var(--color-text)]/[0.05]'
+              activeTab === tab.id ? 'bg-[var(--color-main)] text-white shadow-md' : 'bg-[var(--color-surface)] text-[var(--color-text)]/40 border border-[var(--color-text)]/20 hover:bg-[var(--color-text)]/[0.05]'
             }`}
           >
             <tab.icon size={18} />
@@ -216,7 +219,7 @@ const MasterData: React.FC = () => {
         ))}
       </div>
 
-      <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 overflow-hidden">
+      <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
@@ -230,7 +233,9 @@ const MasterData: React.FC = () => {
               {activeTab === 'factories' && factories.map(f => (
                 <tr key={f.id} className="hover:bg-[var(--color-text)]/[0.02] transition-colors">
                   <td className="px-6 py-4 font-bold text-[var(--color-text)]">{f.name}</td>
-                  <td className="px-6 py-4 text-sm text-[var(--color-text)]/60">{f.location}</td>
+                  <td className="px-6 py-4 text-sm text-[var(--color-text)]/60">
+                    Location: {f.location} {f.managerId && `• Manager: ${users.find(u => u.uid === f.managerId)?.name || 'Unknown'}`}
+                  </td>
                   {canEdit && (
                     <td className="px-6 py-4 text-right flex justify-end space-x-2">
                       <button onClick={() => handleEdit(f)} className="p-2 text-[var(--color-main)] hover:bg-[var(--color-main)]/10 rounded-lg"><Edit2 size={18} /></button>
@@ -243,7 +248,7 @@ const MasterData: React.FC = () => {
                 <tr key={w.id} className="hover:bg-[var(--color-text)]/[0.02] transition-colors">
                   <td className="px-6 py-4 font-bold text-[var(--color-text)]">{w.name}</td>
                   <td className="px-6 py-4 text-sm text-[var(--color-text)]/60">
-                    {w.location} • {factories.find(f => f.id === w.factoryId)?.name || 'No Factory'}
+                    Location: {w.location} {w.managerId && `• Manager: ${users.find(u => u.uid === w.managerId)?.name || 'Unknown'}`} • {factories.find(f => f.id === w.factoryId)?.name || 'No Factory'}
                   </td>
                   {canEdit && (
                     <td className="px-6 py-4 text-right flex justify-end space-x-2">
@@ -323,11 +328,18 @@ const MasterData: React.FC = () => {
             <>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Factory Name</label>
-                <input required value={factoryForm.name} onChange={e => setFactoryForm({...factoryForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" />
+                <input required value={factoryForm.name} onChange={e => setFactoryForm({...factoryForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Location</label>
-                <input required value={factoryForm.location} onChange={e => setFactoryForm({...factoryForm, location: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" />
+                <input required value={factoryForm.location} onChange={e => setFactoryForm({...factoryForm, location: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Manager</label>
+                <select value={factoryForm.managerId} onChange={e => setFactoryForm({...factoryForm, managerId: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]">
+                  <option value="">Select Manager (Optional)</option>
+                  {users.map(u => <option key={u.uid} value={u.uid}>{u.name} ({u.email})</option>)}
+                </select>
               </div>
             </>
           )}
@@ -335,17 +347,24 @@ const MasterData: React.FC = () => {
             <>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Warehouse Name</label>
-                <input required value={warehouseForm.name} onChange={e => setWarehouseForm({...warehouseForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" />
+                <input required value={warehouseForm.name} onChange={e => setWarehouseForm({...warehouseForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Location</label>
-                <input required value={warehouseForm.location} onChange={e => setWarehouseForm({...warehouseForm, location: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" />
+                <input required value={warehouseForm.location} onChange={e => setWarehouseForm({...warehouseForm, location: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Associated Factory</label>
-                <select required value={warehouseForm.factoryId} onChange={e => setWarehouseForm({...warehouseForm, factoryId: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]">
+                <select required value={warehouseForm.factoryId} onChange={e => setWarehouseForm({...warehouseForm, factoryId: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]">
                   <option value="">Select Factory</option>
                   {factories.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Manager</label>
+                <select value={warehouseForm.managerId} onChange={e => setWarehouseForm({...warehouseForm, managerId: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]">
+                  <option value="">Select Manager (Optional)</option>
+                  {users.map(u => <option key={u.uid} value={u.uid}>{u.name} ({u.email})</option>)}
                 </select>
               </div>
             </>
@@ -354,29 +373,29 @@ const MasterData: React.FC = () => {
             <>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Product Name</label>
-                <input required value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" />
+                <input required value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Category</label>
-                  <select required value={productForm.categoryId} onChange={e => setProductForm({...productForm, categoryId: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]">
+                  <select required value={productForm.categoryId} onChange={e => setProductForm({...productForm, categoryId: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]">
                     <option value="">Select Category</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Price ($)</label>
-                  <input type="number" required value={productForm.price} onChange={e => setProductForm({...productForm, price: e.target.value === '' ? 0 : Number(e.target.value)})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" />
+                  <input type="number" required value={productForm.price} onChange={e => setProductForm({...productForm, price: e.target.value === '' ? 0 : Number(e.target.value)})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Package Size</label>
-                  <input required value={productForm.packageSize} onChange={e => setProductForm({...productForm, packageSize: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" placeholder="e.g. 500ml, 1kg" />
+                  <input required value={productForm.packageSize} onChange={e => setProductForm({...productForm, packageSize: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" placeholder="e.g. 500ml, 1kg" />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Base Unit</label>
-                  <input required value={productForm.unit} onChange={e => setProductForm({...productForm, unit: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" placeholder="e.g. Bottle, Box" />
+                  <input required value={productForm.unit} onChange={e => setProductForm({...productForm, unit: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" placeholder="e.g. Bottle, Box" />
                 </div>
               </div>
               <div className="space-y-1 mt-4">
@@ -392,11 +411,11 @@ const MasterData: React.FC = () => {
             <>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Material Name</label>
-                <input required value={rawForm.name} onChange={e => setRawForm({...rawForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" />
+                <input required value={rawForm.name} onChange={e => setRawForm({...rawForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Unit</label>
-                <select required value={rawForm.unit} onChange={e => setRawForm({...rawForm, unit: e.target.value as any})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]">
+                <select required value={rawForm.unit} onChange={e => setRawForm({...rawForm, unit: e.target.value as any})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]">
                   <option value="kg">Kilogram (kg)</option>
                   <option value="liter">Liter (l)</option>
                   <option value="unit">Unit (pcs)</option>
@@ -409,11 +428,11 @@ const MasterData: React.FC = () => {
             <>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Category Name</label>
-                <input required value={categoryForm.name} onChange={e => setCategoryForm({...categoryForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" />
+                <input required value={categoryForm.name} onChange={e => setCategoryForm({...categoryForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Description</label>
-                <textarea value={categoryForm.description} onChange={e => setCategoryForm({...categoryForm, description: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 h-24 text-[var(--color-text)]" />
+                <textarea value={categoryForm.description} onChange={e => setCategoryForm({...categoryForm, description: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 h-24 text-[var(--color-text)]" />
               </div>
             </>
           )}
@@ -421,14 +440,22 @@ const MasterData: React.FC = () => {
             <>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Outlet Name</label>
-                <input required value={outletForm.name} onChange={e => setOutletForm({...outletForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" />
+                <input required value={outletForm.name} onChange={e => setOutletForm({...outletForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
               </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Location</label>
-                <input required value={outletForm.location} onChange={e => setOutletForm({...outletForm, location: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 text-[var(--color-text)]" />
+              <div>
+                <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Location</label>
+                <input required value={outletForm.location} onChange={e => setOutletForm({...outletForm, location: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Parent Factory</label>
+                <select value={outletForm.factory_id} onChange={e => setOutletForm({...outletForm, factory_id: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]">
+                  <option value="">Select Factory (Optional)</option>
+                  {factories.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                </select>
               </div>
             </>
           )}
+
           <button 
             type="submit" 
             disabled={submitting}

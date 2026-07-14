@@ -37,7 +37,7 @@ const DNModal: React.FC<DNModalProps> = ({
               required
               value={selectedSO?.id || ''}
               onChange={e => setSelectedSO(pendingSOs.find(so => so.id === e.target.value) || null)}
-              className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+              className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
             >
               <option value="">Select Paid SO</option>
               {(pendingSOs || []).map(so => (
@@ -68,7 +68,7 @@ const DNModal: React.FC<DNModalProps> = ({
             required
             value={dnForm.warehouseId}
             onChange={e => setDnForm({ ...dnForm, warehouseId: e.target.value })}
-            className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+            className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
           >
             <option value="">Select Warehouse</option>
             {(warehouses || []).map(w => (
@@ -81,7 +81,7 @@ const DNModal: React.FC<DNModalProps> = ({
           <textarea 
             value={dnForm.notes}
             onChange={e => setDnForm({ ...dnForm, notes: e.target.value })}
-            className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 h-24 resize-none text-[var(--color-text)]"
+            className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 h-24 resize-none text-[var(--color-text)]"
             placeholder="Shipping details, carrier info, etc..."
           />
         </div>

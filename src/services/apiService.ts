@@ -9,9 +9,6 @@ export interface FetchOptions {
 
 class ApiService {
   private getBaseUrl() {
-    if (typeof window !== 'undefined') {
-      return '/api';
-    }
     return process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') || 'http://localhost:4000/api';
   }
 

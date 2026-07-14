@@ -137,7 +137,7 @@ const Production: React.FC = () => {
 
       {/* Stats Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-500">
               <Clock size={24} />
@@ -147,7 +147,7 @@ const Production: React.FC = () => {
           <p className="text-3xl font-bold text-[var(--color-text)]">{stats.active}</p>
           <p className="text-sm text-[var(--color-text)]/40 mt-1">Runs currently in progress</p>
         </div>
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-amber-500/10 rounded-2xl text-amber-500">
               <TrendingUp size={24} />
@@ -157,7 +157,7 @@ const Production: React.FC = () => {
           <p className="text-3xl font-bold text-[var(--color-text)]">{stats.planned}</p>
           <p className="text-sm text-[var(--color-text)]/40 mt-1">Scheduled for future</p>
         </div>
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-500">
               <CheckCircle size={24} />
@@ -184,7 +184,7 @@ const Production: React.FC = () => {
             <motion.div 
               key={factory.id}
               whileHover={{ y: -5 }}
-              className="bg-[var(--color-surface)] p-6 rounded-3xl shadow-sm border border-[var(--color-text)]/5"
+              className="bg-[var(--color-surface)] p-6 rounded-3xl shadow-sm border border-[var(--color-text)]/20"
             >
               <div className="flex items-center space-x-4 mb-6">
                 <div className="p-3 bg-[var(--color-main)]/10 rounded-2xl text-[var(--color-main)]">
@@ -212,7 +212,7 @@ const Production: React.FC = () => {
                   <span className="font-bold text-[var(--color-text)]">{totalProduced.toLocaleString()} units</span>
                 </div>
 
-                <div className="pt-4 border-t border-[var(--color-text)]/5 flex justify-between items-center">
+                <div className="pt-4 border-t border-[var(--color-text)]/20 flex justify-between items-center">
                   <span className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40">Active Runs</span>
                   <span className="font-bold text-[var(--color-main)]">{activeRuns.length}</span>
                 </div>
@@ -222,8 +222,8 @@ const Production: React.FC = () => {
         })}
       </div>
 
-      <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 overflow-hidden">
-        <div className="p-6 border-b border-[var(--color-text)]/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
+        <div className="p-6 border-b border-[var(--color-text)]/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Manufacturing Schedule</h3>
           <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
             <div className="relative">
@@ -233,10 +233,10 @@ const Production: React.FC = () => {
                 placeholder="Search runs..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-sm w-full md:w-64"
+                className="pl-10 pr-4 py-2 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-sm w-full md:w-64"
               />
             </div>
-            <div className="flex items-center space-x-2 bg-[var(--color-bg)] px-3 py-2 rounded-xl border border-[var(--color-text)]/5">
+            <div className="flex items-center space-x-2 bg-[var(--color-bg)] px-3 py-2 rounded-xl border border-[var(--color-text)]/20">
               <Filter size={16} className="text-[var(--color-text)]/40" />
               <select 
                 value={statusFilter}
@@ -379,11 +379,11 @@ const Production: React.FC = () => {
         {selectedRun && (
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/5">
+              <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">Run ID</p>
                 <p className="font-mono font-bold text-[var(--color-main)]">#{selectedRun.id.slice(0, 12)}</p>
               </div>
-              <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/5">
+              <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">Status</p>
                 <Badge variant={
                   selectedRun.status === 'completed' ? 'success' : 
@@ -434,7 +434,7 @@ const Production: React.FC = () => {
               )}
             </div>
 
-            <div className="bg-[var(--color-bg)] p-6 rounded-3xl border border-[var(--color-text)]/5">
+            <div className="bg-[var(--color-bg)] p-6 rounded-3xl border border-[var(--color-text)]/20">
               <div className="flex justify-between items-end mb-4">
                 <div>
                   <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">Production Progress</p>
@@ -479,7 +479,7 @@ const Production: React.FC = () => {
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40">Processing Steps</p>
                 <div className="space-y-2">
                   {recipes.find(r => r.id === selectedRun.recipeId)?.processingSteps.sort((a, b) => a.order - b.order).map((step, i) => (
-                    <div key={i} className="flex items-center space-x-3 p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5">
+                    <div key={i} className="flex items-center space-x-3 p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20">
                       <div className="w-6 h-6 rounded-full bg-[var(--color-main)]/10 text-[var(--color-main)] flex items-center justify-center text-xs font-bold">
                         {step.order}
                       </div>
@@ -529,7 +529,7 @@ const Production: React.FC = () => {
               required
               value={form.factoryId}
               onChange={e => setForm({ ...form, factoryId: e.target.value })}
-              className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+              className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
             >
               <option value="">Select Factory</option>
               {factories.map(f => (
@@ -544,7 +544,7 @@ const Production: React.FC = () => {
                 required
                 value={form.productId}
                 onChange={e => setForm({ ...form, productId: e.target.value, recipeId: '' })}
-                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
               >
                 <option value="">Select Product</option>
                 {products.map(p => (
@@ -557,7 +557,7 @@ const Production: React.FC = () => {
               <select 
                 value={form.recipeId}
                 onChange={e => setForm({ ...form, recipeId: e.target.value })}
-                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
               >
                 <option value="">Select Recipe</option>
                 {recipes.filter(r => r.productId === form.productId).map(r => (
@@ -575,7 +575,7 @@ const Production: React.FC = () => {
                 min="1"
                 value={form.quantity}
                 onChange={e => setForm({ ...form, quantity: parseInt(e.target.value) || 0 })}
-                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
               />
             </div>
             <div className="space-y-1">
@@ -585,7 +585,7 @@ const Production: React.FC = () => {
                 required
                 value={form.startDate}
                 onChange={e => setForm({ ...form, startDate: e.target.value })}
-                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
               />
             </div>
           </div>
@@ -609,7 +609,7 @@ const Production: React.FC = () => {
                 value={progressModal?.quantity || 0}
                 max={progressModal?.target}
                 onChange={e => setProgressModal(prev => prev ? {...prev, quantity: parseInt(e.target.value) || 0} : null)}
-                className="w-full p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/5 text-[var(--color-text)] text-2xl font-bold text-center"
+                className="w-full p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20 text-[var(--color-text)] text-2xl font-bold text-center"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-text)]/20 font-bold">
                 / {progressModal?.target}
@@ -617,7 +617,7 @@ const Production: React.FC = () => {
             </div>
           </div>
           
-          <div className="bg-[var(--color-bg)] p-4 rounded-2xl border border-[var(--color-text)]/5">
+          <div className="bg-[var(--color-bg)] p-4 rounded-2xl border border-[var(--color-text)]/20">
             <div className="flex justify-between text-xs font-bold text-[var(--color-text)]/40 uppercase mb-2">
               <span>Completion</span>
               <span>{progressModal?.target && progressModal.target > 0 ? Math.round(((progressModal?.quantity || 0) / progressModal.target) * 100) : 0}%</span>
@@ -662,7 +662,7 @@ const Production: React.FC = () => {
             <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Destination Warehouse</label>
             <select 
               id="warehouse-select"
-              className="w-full p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/5 text-[var(--color-text)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20"
+              className="w-full p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20 text-[var(--color-text)] font-medium focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20"
             >
               <option value="">Select Warehouse</option>
               {factories.map(f => (

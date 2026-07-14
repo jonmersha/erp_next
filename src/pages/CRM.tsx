@@ -36,6 +36,7 @@ const CRM: React.FC = () => {
   const [customerForm, setCustomerForm] = useState({ name: '', phone: '', email: '', address: '' });
   const [ticketForm, setTicketForm] = useState({ customerId: '', type: 'inquiry', status: 'open', resolutionNotes: '' });
   const [interactionForm, setInteractionForm] = useState({ customerId: '', interactionType: 'general', notes: '' });
+  const [errorMsg, setErrorMsg] = useState('');
 
   const filteredCustomers = customers.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()));
   const filteredTickets = tickets.filter(t => t.id.includes(searchTerm) || customers.find(c => c.id === t.customer_id)?.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -44,17 +45,22 @@ const CRM: React.FC = () => {
   // Submit Handlers
   const handleCustomerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingCustomer) {
-      await updateCustomer(editingCustomer.id, customerForm);
-      if (viewCustomer && viewCustomer.id === editingCustomer.id) {
-        setViewCustomer({ ...viewCustomer, ...customerForm } as Customer);
+    setErrorMsg('');
+    try {
+      if (editingCustomer) {
+        await updateCustomer(editingCustomer.id, customerForm);
+        if (viewCustomer && viewCustomer.id === editingCustomer.id) {
+          setViewCustomer({ ...viewCustomer, ...customerForm } as Customer);
+        }
+      } else {
+        await createCustomer(customerForm);
       }
-    } else {
-      await createCustomer(customerForm);
+      setIsCustomerModalOpen(false);
+      setEditingCustomer(null);
+      setCustomerForm({ name: '', phone: '', email: '', address: '' });
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to save customer');
     }
-    setIsCustomerModalOpen(false);
-    setEditingCustomer(null);
-    setCustomerForm({ name: '', phone: '', email: '', address: '' });
   };
 
   const handleDeleteCustomer = async (id: string) => {
@@ -66,34 +72,44 @@ const CRM: React.FC = () => {
 
   const handleTicketSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingTicket) {
-      await updateTicket(editingTicket.id, {
-        type: ticketForm.type as any,
-        status: ticketForm.status as any,
-        resolution_notes: ticketForm.resolutionNotes
-      });
-    } else {
-      await createTicket({
-        customer_id: ticketForm.customerId,
-        type: ticketForm.type as any,
-        status: ticketForm.status as any,
-        resolution_notes: ticketForm.resolutionNotes
-      });
+    setErrorMsg('');
+    try {
+      if (editingTicket) {
+        await updateTicket(editingTicket.id, {
+          type: ticketForm.type as any,
+          status: ticketForm.status as any,
+          resolution_notes: ticketForm.resolutionNotes
+        });
+      } else {
+        await createTicket({
+          customer_id: ticketForm.customerId,
+          type: ticketForm.type as any,
+          status: ticketForm.status as any,
+          resolution_notes: ticketForm.resolutionNotes
+        });
+      }
+      setIsTicketModalOpen(false);
+      setEditingTicket(null);
+      setTicketForm({ customerId: '', type: 'inquiry', status: 'open', resolutionNotes: '' });
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to save ticket');
     }
-    setIsTicketModalOpen(false);
-    setEditingTicket(null);
-    setTicketForm({ customerId: '', type: 'inquiry', status: 'open', resolutionNotes: '' });
   };
 
   const handleInteractionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createInteraction({
-      customer_id: interactionForm.customerId,
-      interaction_type: interactionForm.interactionType as any,
-      notes: interactionForm.notes
-    });
-    setIsInteractionModalOpen(false);
-    setInteractionForm({ customerId: '', interactionType: 'general', notes: '' });
+    setErrorMsg('');
+    try {
+      await createInteraction({
+        customer_id: interactionForm.customerId,
+        interaction_type: interactionForm.interactionType as any,
+        notes: interactionForm.notes
+      });
+      setIsInteractionModalOpen(false);
+      setInteractionForm({ customerId: '', interactionType: 'general', notes: '' });
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to save interaction');
+    }
   };
 
   // Open Edit Modals
@@ -182,7 +198,7 @@ const CRM: React.FC = () => {
 
       {/* Stats Board */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
               <Users size={24} />
@@ -191,7 +207,7 @@ const CRM: React.FC = () => {
           <p className="text-sm font-medium text-[var(--color-text)]/40 uppercase tracking-widest">Total Customers</p>
           <h3 className="text-3xl font-light text-[var(--color-text)] mt-1">{customers.length}</h3>
         </div>
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
               <MessageSquare size={24} />
@@ -200,7 +216,7 @@ const CRM: React.FC = () => {
           <p className="text-sm font-medium text-[var(--color-text)]/40 uppercase tracking-widest">Open Tickets</p>
           <h3 className="text-3xl font-light text-[var(--color-text)] mt-1">{tickets.filter(t => t.status !== 'closed' && t.status !== 'resolved').length}</h3>
         </div>
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
               <Activity size={24} />
@@ -211,8 +227,8 @@ const CRM: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-[var(--color-surface)] rounded-3xl border border-[var(--color-text)]/5 overflow-hidden">
-        <div className="border-b border-[var(--color-text)]/5 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[var(--color-surface)] rounded-3xl border border-[var(--color-text)]/20 overflow-hidden">
+        <div className="border-b border-[var(--color-text)]/20 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex space-x-6 overflow-x-auto">
             <button onClick={() => setActiveTab('customers')} className={`pb-4 border-b-2 font-medium whitespace-nowrap transition-colors ${activeTab === 'customers' ? 'border-[var(--color-main)] text-[var(--color-main)]' : 'border-transparent text-[var(--color-text)]/40 hover:text-[var(--color-text)]'}`}>
               <div className="flex items-center space-x-2"><Users size={18} /><span>Customers</span></div>
@@ -251,7 +267,7 @@ const CRM: React.FC = () => {
           {activeTab === 'customers' && (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-[var(--color-text)]/40 border-b border-[var(--color-text)]/5">
+                <tr className="text-left text-[var(--color-text)]/40 border-b border-[var(--color-text)]/20">
                   <th className="pb-4 font-medium pl-4">Customer Name</th>
                   <th className="pb-4 font-medium">Contact</th>
                   <th className="pb-4 font-medium text-right pr-4">Actions</th>
@@ -263,7 +279,7 @@ const CRM: React.FC = () => {
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                     key={customer.id} 
                     onClick={() => setViewCustomer(customer)}
-                    className="border-b border-[var(--color-text)]/5 hover:bg-[var(--color-text)]/[0.02] transition-colors group cursor-pointer"
+                    className="border-b border-[var(--color-text)]/20 hover:bg-[var(--color-text)]/[0.02] transition-colors group cursor-pointer"
                   >
                     <td className="py-4 pl-4 font-medium">
                       <div className="flex flex-col">
@@ -293,7 +309,7 @@ const CRM: React.FC = () => {
           {activeTab === 'tickets' && (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-[var(--color-text)]/40 border-b border-[var(--color-text)]/5">
+                <tr className="text-left text-[var(--color-text)]/40 border-b border-[var(--color-text)]/20">
                   <th className="pb-4 font-medium pl-4">ID / Customer</th>
                   <th className="pb-4 font-medium">Type</th>
                   <th className="pb-4 font-medium">Status</th>
@@ -304,7 +320,7 @@ const CRM: React.FC = () => {
                 {filteredTickets.map(ticket => {
                   const cust = customers.find(c => c.id === ticket.customer_id);
                   return (
-                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={ticket.id} className="border-b border-[var(--color-text)]/5 hover:bg-[var(--color-text)]/[0.02] transition-colors">
+                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={ticket.id} className="border-b border-[var(--color-text)]/20 hover:bg-[var(--color-text)]/[0.02] transition-colors">
                       <td className="py-4 pl-4">
                         <div className="font-medium text-[var(--color-text)]">{cust?.name || 'Unknown'}</div>
                         <div className="text-xs text-[var(--color-text)]/40 uppercase tracking-widest mt-1">#{ticket.id.substring(0,8)}</div>
@@ -330,7 +346,7 @@ const CRM: React.FC = () => {
           {activeTab === 'interactions' && (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-[var(--color-text)]/40 border-b border-[var(--color-text)]/5">
+                <tr className="text-left text-[var(--color-text)]/40 border-b border-[var(--color-text)]/20">
                   <th className="pb-4 font-medium pl-4">Date</th>
                   <th className="pb-4 font-medium">Customer</th>
                   <th className="pb-4 font-medium">Type</th>
@@ -341,7 +357,7 @@ const CRM: React.FC = () => {
                 {filteredInteractions.map(interaction => {
                   const cust = customers.find(c => c.id === interaction.customer_id);
                   return (
-                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={interaction.id} className="border-b border-[var(--color-text)]/5 hover:bg-[var(--color-text)]/[0.02] transition-colors">
+                    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={interaction.id} className="border-b border-[var(--color-text)]/20 hover:bg-[var(--color-text)]/[0.02] transition-colors">
                       <td className="py-4 pl-4 text-[var(--color-text)]/60">{new Date(interaction.interaction_date).toLocaleString()}</td>
                       <td className="py-4 font-medium text-[var(--color-text)]">{cust?.name || 'Unknown'}</td>
                       <td className="py-4 capitalize text-[var(--color-text)]/60">
@@ -360,7 +376,7 @@ const CRM: React.FC = () => {
             <div className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Tickets by Status */}
-                <div className="bg-[var(--color-surface)] border border-[var(--color-text)]/5 rounded-3xl p-6">
+                <div className="bg-[var(--color-surface)] border border-[var(--color-text)]/20 rounded-3xl p-6">
                   <h3 className="text-lg font-bold mb-6">Tickets by Status</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -376,7 +392,7 @@ const CRM: React.FC = () => {
                 </div>
 
                 {/* Tickets by Type */}
-                <div className="bg-[var(--color-surface)] border border-[var(--color-text)]/5 rounded-3xl p-6">
+                <div className="bg-[var(--color-surface)] border border-[var(--color-text)]/20 rounded-3xl p-6">
                   <h3 className="text-lg font-bold mb-6">Tickets by Type</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -393,7 +409,7 @@ const CRM: React.FC = () => {
               </div>
 
               {/* Interactions Timeline */}
-              <div className="bg-[var(--color-surface)] border border-[var(--color-text)]/5 rounded-3xl p-6">
+              <div className="bg-[var(--color-surface)] border border-[var(--color-text)]/20 rounded-3xl p-6">
                 <h3 className="text-lg font-bold mb-6">Interactions (Last 30 Days)</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
@@ -419,9 +435,9 @@ const CRM: React.FC = () => {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setViewCustomer(null)} className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" />
             <motion.div 
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-              className="fixed inset-y-0 right-0 w-full md:w-[500px] bg-[var(--color-surface)] shadow-2xl z-50 border-l border-[var(--color-text)]/5 overflow-y-auto"
+              className="fixed inset-y-0 right-0 w-full md:w-[500px] bg-[var(--color-surface)] shadow-2xl z-50 border-l border-[var(--color-text)]/20 overflow-y-auto"
             >
-              <div className="p-6 border-b border-[var(--color-text)]/5 flex justify-between items-center sticky top-0 bg-[var(--color-surface)]/80 backdrop-blur-xl z-10">
+              <div className="p-6 border-b border-[var(--color-text)]/20 flex justify-between items-center sticky top-0 bg-[var(--color-surface)]/80 backdrop-blur-xl z-10">
                 <h3 className="text-xl font-bold font-serif text-[var(--color-main)]">Customer Profile</h3>
                 <button onClick={() => setViewCustomer(null)} className="p-2 bg-[var(--color-text)]/5 rounded-full hover:bg-[var(--color-text)]/10"><XCircle size={20}/></button>
               </div>
@@ -450,7 +466,7 @@ const CRM: React.FC = () => {
                   </h4>
                   <div className="space-y-4">
                     {interactions.filter(i => i.customer_id === viewCustomer.id).slice(0, 5).map(i => (
-                      <div key={i.id} className="p-4 rounded-2xl border border-[var(--color-text)]/5 bg-[var(--color-text)]/[0.01]">
+                      <div key={i.id} className="p-4 rounded-2xl border border-[var(--color-text)]/20 bg-[var(--color-text)]/[0.01]">
                         <div className="flex justify-between items-center mb-2">
                           <Badge color="blue" label={i.interaction_type} />
                           <span className="text-xs text-[var(--color-text)]/40">{new Date(i.interaction_date).toLocaleDateString()}</span>
@@ -470,7 +486,7 @@ const CRM: React.FC = () => {
                   </h4>
                   <div className="space-y-4">
                     {tickets.filter(t => t.customer_id === viewCustomer.id).map(t => (
-                      <div key={t.id} className="p-4 rounded-2xl border border-[var(--color-text)]/5 bg-[var(--color-text)]/[0.01]">
+                      <div key={t.id} className="p-4 rounded-2xl border border-[var(--color-text)]/20 bg-[var(--color-text)]/[0.01]">
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-bold capitalize">{t.type}</span>
                           <Badge color={t.status === 'open' ? 'red' : t.status === 'in_progress' ? 'amber' : 'emerald'} label={t.status.replace('_', ' ')} />
@@ -495,11 +511,16 @@ const CRM: React.FC = () => {
       <AnimatePresence>
         {isCustomerModalOpen && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[var(--color-surface)] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[var(--color-text)]/5">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[var(--color-surface)] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[var(--color-text)]/20">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">{editingCustomer ? 'Edit Customer' : 'Add Customer'}</h3>
                 <button onClick={() => setIsCustomerModalOpen(false)} className="text-[var(--color-text)]/40 hover:text-[var(--color-text)]"><XCircle size={24} /></button>
               </div>
+              {errorMsg && (
+                <div className="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+                  {errorMsg}
+                </div>
+              )}
               <form onSubmit={handleCustomerSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Name</label>
@@ -532,11 +553,16 @@ const CRM: React.FC = () => {
       <AnimatePresence>
         {isTicketModalOpen && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[var(--color-surface)] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[var(--color-text)]/5">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[var(--color-surface)] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[var(--color-text)]/20">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">{editingTicket ? 'Edit Ticket' : 'Open Ticket'}</h3>
+                <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">{editingTicket ? 'Edit Ticket' : 'Create Ticket'}</h3>
                 <button onClick={() => setIsTicketModalOpen(false)} className="text-[var(--color-text)]/40 hover:text-[var(--color-text)]"><XCircle size={24} /></button>
               </div>
+              {errorMsg && (
+                <div className="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+                  {errorMsg}
+                </div>
+              )}
               <form onSubmit={handleTicketSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Customer</label>
@@ -581,11 +607,16 @@ const CRM: React.FC = () => {
       <AnimatePresence>
         {isInteractionModalOpen && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[var(--color-surface)] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[var(--color-text)]/5">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[var(--color-surface)] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[var(--color-text)]/20">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">Log Interaction</h3>
                 <button onClick={() => setIsInteractionModalOpen(false)} className="text-[var(--color-text)]/40 hover:text-[var(--color-text)]"><XCircle size={24} /></button>
               </div>
+              {errorMsg && (
+                <div className="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+                  {errorMsg}
+                </div>
+              )}
               <form onSubmit={handleInteractionSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Customer</label>

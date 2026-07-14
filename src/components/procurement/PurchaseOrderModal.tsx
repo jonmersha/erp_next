@@ -217,7 +217,7 @@ const PurchaseOrderModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, order
           </div>
         </div>
 
-        <div className="pt-4 border-t border-[var(--color-text)]/5 flex justify-between items-center">
+        <div className="pt-4 border-t border-[var(--color-text)]/20 flex justify-between items-center">
           <span className="text-sm font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Total Amount</span>
           <span className="text-2xl font-serif font-bold text-[var(--color-main)]">${totalAmount.toLocaleString()}</span>
         </div>

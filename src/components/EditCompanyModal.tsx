@@ -120,9 +120,9 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({ isOpen, onClose, co
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-[var(--color-surface)] rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden border border-[var(--color-text)]/5"
+            className="bg-[var(--color-surface)] rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden border border-[var(--color-text)]/20"
           >
-            <div className="p-8 border-b border-[var(--color-text)]/5 flex justify-between items-center bg-[var(--color-bg)]/30">
+            <div className="p-8 border-b border-[var(--color-text)]/20 flex justify-between items-center bg-[var(--color-bg)]/30">
               <div>
                 <h2 className="text-2xl font-serif font-bold text-[var(--color-text)]">Edit Company Profile</h2>
                 <p className="text-sm text-[var(--color-text)]/40">Update your organization's public identity</p>
@@ -181,7 +181,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({ isOpen, onClose, co
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full pl-12 pr-4 py-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20"
+                      className="w-full pl-12 pr-4 py-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20"
                     />
                   </div>
                 </div>
@@ -195,7 +195,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({ isOpen, onClose, co
                       type="text"
                       value={formData.address}
                       onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                      className="w-full pl-12 pr-4 py-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20"
+                      className="w-full pl-12 pr-4 py-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20"
                     />
                   </div>
                 </div>
@@ -210,7 +210,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({ isOpen, onClose, co
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        className="w-full pl-12 pr-4 py-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20"
+                        className="w-full pl-12 pr-4 py-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20"
                       />
                     </div>
                   </div>
@@ -223,7 +223,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({ isOpen, onClose, co
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        className="w-full pl-12 pr-4 py-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20"
+                        className="w-full pl-12 pr-4 py-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20"
                       />
                     </div>
                   </div>

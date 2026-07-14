@@ -27,7 +27,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-3xl shadow-2xl z-[70] overflow-hidden"
           >
-            <div className="p-6 border-b border-black/5 flex justify-between items-center bg-[#F5F5F0]/30">
+            <div className="p-6 border-b border-black/20 flex justify-between items-center bg-[#F5F5F0]/30">
               <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">{title}</h3>
               <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full transition-colors text-black/40">
                 <X size={20} />

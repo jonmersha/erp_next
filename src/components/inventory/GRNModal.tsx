@@ -37,7 +37,7 @@ const GRNModal: React.FC<GRNModalProps> = ({
               required
               value={selectedPO?.id || ''}
               onChange={e => setSelectedPO(pendingPOs.find(po => po.id === e.target.value) || null)}
-              className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+              className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
             >
               <option value="">Select Approved PO</option>
               {(pendingPOs || []).map(po => (
@@ -68,7 +68,7 @@ const GRNModal: React.FC<GRNModalProps> = ({
             required
             value={grnForm.warehouseId}
             onChange={e => setGrnForm({ ...grnForm, warehouseId: e.target.value })}
-            className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+            className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
           >
             <option value="">Select Warehouse</option>
             {(warehouses || []).map(w => (
@@ -81,7 +81,7 @@ const GRNModal: React.FC<GRNModalProps> = ({
           <textarea 
             value={grnForm.notes}
             onChange={e => setGrnForm({ ...grnForm, notes: e.target.value })}
-            className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 h-24 resize-none text-[var(--color-text)]"
+            className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 h-24 resize-none text-[var(--color-text)]"
             placeholder="Any observations about the received goods..."
           />
         </div>

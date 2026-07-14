@@ -19,7 +19,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon: Icon, color, 
   };
 
   return (
-    <div className="bg-[var(--color-surface)] p-6 rounded-3xl shadow-sm border border-[var(--color-text)]/5 flex items-center space-x-4">
+    <div className="bg-[var(--color-surface)] p-6 rounded-3xl shadow-sm border border-[var(--color-text)]/20 flex items-center space-x-4">
       <div className={`p-4 rounded-2xl ${colors[color]}`}>
         <Icon size={24} />
       </div>

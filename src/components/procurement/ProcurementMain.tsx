@@ -14,13 +14,18 @@ import {
   TrendingUp,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import SupplierModal from './SupplierModal';
 import PurchaseOrderModal from './PurchaseOrderModal';
 import Badge from '../common/Badge';
+import { deleteSupplier, approveSupplier, approvePurchaseOrder } from '../../services/procurementService';
+import { useAuth } from '../../context/AuthContext';
 
 const Procurement: React.FC = () => {
+  const { profile } = useAuth();
   const { suppliers, orders, materials, factories, warehouses, loading, refreshData } = useProcurementData();
   const [activeTab, setActiveTab] = useState<'orders' | 'suppliers'>('orders');
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,12 +44,46 @@ const Procurement: React.FC = () => {
     s.contact.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleDeleteSupplier = async (id: string) => {
+    if (confirm('Are you sure you want to delete this supplier?')) {
+      try {
+        await deleteSupplier(id);
+        await refreshData();
+      } catch (error) {
+        console.error('Failed to delete supplier:', error);
+      }
+    }
+  };
+
+  const handleApproveSupplier = async (id: string) => {
+    try {
+      if (profile?.uid) {
+        await approveSupplier(id, profile.uid);
+        await refreshData();
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to approve supplier');
+    }
+  };
+
+  const handleApprovePO = async (id: string) => {
+    try {
+      if (profile?.uid) {
+        await approvePurchaseOrder(id, profile.uid);
+        await refreshData();
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to approve purchase order');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'received': return 'emerald';
       case 'shipped': return 'blue';
       case 'approved': return 'purple';
       case 'pending': return 'amber';
+      case 'pending_approval': return 'amber';
       case 'cancelled': return 'red';
       default: return 'gray';
     }
@@ -53,7 +92,8 @@ const Procurement: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'received': return <CheckCircle2 size={14} />;
-      case 'pending': return <Clock size={14} />;
+      case 'pending': 
+      case 'pending_approval': return <Clock size={14} />;
       default: return <AlertCircle size={14} />;
     }
   };
@@ -85,7 +125,7 @@ const Procurement: React.FC = () => {
 
       {/* Stats Board */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
               <ShoppingCart size={24} />
@@ -95,7 +135,7 @@ const Procurement: React.FC = () => {
           <p className="text-sm font-medium text-[var(--color-text)]/40 uppercase tracking-widest">Active Orders</p>
           <h3 className="text-3xl font-light text-[var(--color-text)] mt-1">{orders.filter(o => o.status !== 'received' && o.status !== 'cancelled').length}</h3>
         </div>
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
               <TrendingUp size={24} />
@@ -105,7 +145,7 @@ const Procurement: React.FC = () => {
           <p className="text-sm font-medium text-[var(--color-text)]/40 uppercase tracking-widest">Total Spend</p>
           <h3 className="text-3xl font-light text-[var(--color-text)] mt-1">${orders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0).toLocaleString()}</h3>
         </div>
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
               <Users size={24} />
@@ -118,8 +158,8 @@ const Procurement: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="bg-[var(--color-surface)] rounded-3xl border border-[var(--color-text)]/5 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-[var(--color-text)]/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[var(--color-surface)] rounded-3xl border border-[var(--color-text)]/20 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-[var(--color-text)]/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex space-x-1 bg-[var(--color-text)]/5 p-1 rounded-xl w-fit">
             <button 
               onClick={() => setActiveTab('orders')}
@@ -191,10 +231,20 @@ const Procurement: React.FC = () => {
                     <td className="px-8 py-4 text-xs text-[var(--color-text)]/40">
                       {new Date(order.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-8 py-4 text-right">
+                    <td className="px-8 py-4 text-right flex justify-end space-x-2">
+                      {order.status === 'pending_approval' && profile?.uid !== order.createdBy && ['admin', 'factory_manager', 'finance_manager'].includes(profile?.role || '') && (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleApprovePO(order.id); }}
+                          className="p-2 text-[var(--color-main)] hover:bg-[var(--color-main)]/10 rounded-lg transition-all"
+                          title="Approve Purchase Order"
+                        >
+                          <CheckCircle2 size={18} />
+                        </button>
+                      )}
                       <button 
                         onClick={() => { setSelectedPO(order); setIsPOModalOpen(true); }}
                         className="p-2 text-[var(--color-text)]/20 hover:text-[var(--color-main)] hover:bg-[var(--color-main)]/5 rounded-lg transition-all"
+                        title="View Details"
                       >
                         <ChevronRight size={18} />
                       </button>
@@ -209,7 +259,7 @@ const Procurement: React.FC = () => {
                 <tr className="text-[var(--color-text)]/30 text-[10px] font-bold uppercase tracking-widest">
                   <th className="px-8 py-4">Supplier Name</th>
                   <th className="px-8 py-4">Contact Details</th>
-                  <th className="px-8 py-4">Email</th>
+                  <th className="px-8 py-4">Status</th>
                   <th className="px-8 py-4"></th>
                 </tr>
               </thead>
@@ -221,12 +271,47 @@ const Procurement: React.FC = () => {
                     animate={{ opacity: 1 }}
                     className="hover:bg-[var(--color-text)]/[0.02] transition-colors group"
                   >
-                    <td className="px-8 py-4 font-bold text-sm text-[var(--color-text)]">{supplier.name}</td>
-                    <td className="px-8 py-4 text-sm text-[var(--color-text)]/60">{supplier.contact}</td>
-                    <td className="px-8 py-4 text-sm text-[var(--color-text)]/60">{supplier.email || 'N/A'}</td>
-                    <td className="px-8 py-4 text-right">
-                      <button className="p-2 text-[var(--color-text)]/20 hover:text-[var(--color-main)] hover:bg-[var(--color-main)]/5 rounded-lg transition-all">
-                        <MoreVertical size={18} />
+                    <td className="px-8 py-4 font-bold text-sm text-[var(--color-text)]">
+                      {supplier.name}
+                      {supplier.certificate_url && (
+                        <a href={supplier.certificate_url} target="_blank" rel="noreferrer" className="text-xs text-[var(--color-main)] block font-normal hover:underline mt-1">
+                          View License
+                        </a>
+                      )}
+                    </td>
+                    <td className="px-8 py-4 text-sm text-[var(--color-text)]/60">
+                      <div>{supplier.contact}</div>
+                      <div className="text-xs mt-1">{supplier.email || 'N/A'}</div>
+                    </td>
+                    <td className="px-8 py-4">
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant={supplier.status === 'active' ? 'success' : supplier.status === 'pending_approval' ? 'warning' : 'default'}>
+                          {supplier.status === 'active' ? 'Active' : supplier.status === 'pending_approval' ? 'Pending' : 'Inactive'}
+                        </Badge>
+                        {supplier.is_authorized && <Badge variant="warning">Authorized</Badge>}
+                      </div>
+                    </td>
+                    <td className="px-8 py-4 text-right flex justify-end space-x-2">
+                      {supplier.status === 'pending_approval' && profile?.uid !== supplier.createdBy && ['admin', 'factory_manager'].includes(profile?.role || '') && (
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleApproveSupplier(supplier.id); }}
+                          className="p-2 text-[var(--color-main)] hover:bg-[var(--color-main)]/10 rounded-lg transition-all"
+                          title="Approve Supplier"
+                        >
+                          <CheckCircle2 size={18} />
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => { setSelectedSupplier(supplier); setIsSupplierModalOpen(true); }}
+                        className="p-2 text-[var(--color-text)]/20 hover:text-[var(--color-main)] hover:bg-[var(--color-main)]/5 rounded-lg transition-all"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteSupplier(supplier.id)}
+                        className="p-2 text-[var(--color-text)]/20 hover:text-red-500 hover:bg-red-500/5 rounded-lg transition-all"
+                      >
+                        <Trash2 size={18} />
                       </button>
                     </td>
                   </motion.tr>

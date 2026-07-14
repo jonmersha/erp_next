@@ -12,42 +12,41 @@ export const useMasterData = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!profile?.companyId) return;
+    try {
+      const companyId = profile.companyId;
+      const [
+        factoriesData,
+        warehousesData,
+        outletsData,
+        materialsData,
+        productsData
+      ] = await Promise.all([
+        fetchCollection<Factory>('factories', companyId),
+        fetchCollection<Warehouse>('warehouses', companyId),
+        fetchCollection<SalesOutlet>('outlets', companyId),
+        fetchCollection<RawMaterial>('rawMaterials', companyId),
+        fetchCollection<Product>('products', companyId),
+      ]);
 
-    const fetchData = async () => {
-      try {
-        const companyId = profile.companyId;
-        const [
-          factoriesData,
-          warehousesData,
-          outletsData,
-          materialsData,
-          productsData
-        ] = await Promise.all([
-          fetchCollection<Factory>('factories', companyId),
-          fetchCollection<Warehouse>('warehouses', companyId),
-          fetchCollection<SalesOutlet>('outlets', companyId),
-          fetchCollection<RawMaterial>('rawMaterials', companyId),
-          fetchCollection<Product>('products', companyId),
-        ]);
+      setFactories(factoriesData);
+      setWarehouses(warehousesData);
+      setOutlets(outletsData);
+      setMaterials(materialsData);
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Error fetching useMasterData:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [profile?.companyId]);
 
-        setFactories(factoriesData);
-        setWarehouses(warehousesData);
-        setOutlets(outletsData);
-        setMaterials(materialsData);
-        setProducts(productsData);
-      } catch (error) {
-        console.error('Error fetching useMasterData:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchData();
     const interval = setInterval(fetchData, 15000);
     return () => clearInterval(interval);
-  }, [profile?.companyId]);
+  }, [fetchData]);
 
   return {
     factories,
@@ -55,6 +54,7 @@ export const useMasterData = () => {
     outlets,
     materials,
     products,
-    loading
+    loading,
+    refreshData: fetchData
   };
 };

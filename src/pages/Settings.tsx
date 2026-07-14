@@ -66,7 +66,7 @@ const Settings: React.FC = () => {
         <p className="text-[var(--color-text)]/40 mt-1">Manage your company profile, contact details, and branding.</p>
       </header>
 
-      <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+      <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
         <form onSubmit={handleSave} className="space-y-6 text-[var(--color-text)]">
           {successMsg && (
             <div className="bg-green-100 text-green-800 p-4 rounded-xl border border-green-200">

@@ -52,7 +52,7 @@ const Finance: React.FC = () => {
         <p className="text-[var(--color-text)]/40 mt-1">Financial reports, invoices, payments, and yearly plans</p>
       </header>
 
-      <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+      <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
         <div className="flex items-center space-x-2 mb-6">
           <TrendingUp className="text-[var(--color-main)]" />
           <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Financial Plan ({currentYear})</h3>
@@ -61,7 +61,7 @@ const Finance: React.FC = () => {
           {['Q1', 'Q2', 'Q3', 'Q4'].map(q => {
             const plan = yearlyPlans.find(p => p.quarter === q);
             return (
-              <div key={q} className="p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5">
+              <div key={q} className="p-4 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20">
                 <p className="font-bold text-[var(--color-text)]">{q}</p>
                 <p className="text-xs text-[var(--color-text)]/40">Revenue: ${plan ? plan.targetRevenue.toLocaleString() : 0}</p>
                 <p className="text-xs text-[var(--color-text)]/40">Expense: ${plan ? plan.targetExpense.toLocaleString() : 0}</p>
@@ -72,7 +72,7 @@ const Finance: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex items-center space-x-2 mb-6">
             <FileText className="text-[var(--color-main)]" />
             <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Invoices</h3>
@@ -93,7 +93,7 @@ const Finance: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+        <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex items-center space-x-2 mb-6">
             <CreditCard className="text-[var(--color-main)]" />
             <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Payments</h3>

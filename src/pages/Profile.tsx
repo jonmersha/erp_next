@@ -2,16 +2,46 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiService } from '../services/apiService';
-import { Loader2, User as UserIcon, Mail, Shield, CheckCircle } from 'lucide-react';
+import { Loader2, User as UserIcon, Mail, Shield, CheckCircle, Clock, CalendarRange, Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
+import { useHRData } from '../hooks/useHRData';
+import { logAttendance, applyLeave } from '../services/hrService';
+import Modal from '../components/Modal';
 
 const Profile: React.FC = () => {
   const { profile } = useAuth();
   const { t } = useTranslation();
+  const { employees, attendance, leaves } = useHRData();
+  const [activeTab, setActiveTab] = useState<'info' | 'timesheet' | 'leaves'>('info');
+
   const [name, setName] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+
+  const userEmployee = employees.find(emp => emp.email === profile?.email);
+  const myAttendance = attendance.filter(a => a.employee_id === userEmployee?.id);
+  const myLeaves = leaves.filter(l => l.employee_id === userEmployee?.id);
+
+  // Attendance State
+  const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+  const [attendanceForm, setAttendanceForm] = useState({
+    employee_id: '',
+    date: new Date().toISOString().split('T')[0],
+    clock_in: '',
+    clock_out: '',
+    status: 'present'
+  });
+
+  // Leave State
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [leaveForm, setLeaveForm] = useState({
+    employee_id: '',
+    start_date: new Date().toISOString().split('T')[0],
+    end_date: new Date().toISOString().split('T')[0],
+    type: 'annual',
+    reason: ''
+  });
 
   useEffect(() => {
     if (profile) {
@@ -48,6 +78,38 @@ const Profile: React.FC = () => {
     }
   };
 
+  const handleAttendanceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setMessage(null);
+    try {
+      await logAttendance(attendanceForm);
+      setIsAttendanceModalOpen(false);
+      setMessage({ type: 'success', text: 'Attendance logged successfully.' });
+      window.location.reload();
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || "Failed to log attendance" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleLeaveSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setMessage(null);
+    try {
+      await applyLeave(leaveForm);
+      setIsLeaveModalOpen(false);
+      setMessage({ type: 'success', text: 'Leave requested successfully.' });
+      window.location.reload();
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || "Failed to submit leave request" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (!profile) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
@@ -64,9 +126,32 @@ const Profile: React.FC = () => {
     >
       <header>
         <h2 className="text-3xl font-serif font-bold text-[var(--color-main)]">{t('My Profile')}</h2>
-        <p className="text-[var(--color-text)]/40 mt-1">{t('Manage your personal information')}</p>
+        <p className="text-[var(--color-text)]/40 mt-1">{t('Manage your personal information and time')}</p>
       </header>
 
+      {/* Tabs */}
+      <div className="flex space-x-2 border-b border-[var(--color-text)]/10 pb-4 overflow-x-auto">
+        <button 
+          onClick={() => setActiveTab('info')}
+          className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'info' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
+        >
+          <Info size={16} className="mr-2" /> Personal Info
+        </button>
+        <button 
+          onClick={() => setActiveTab('timesheet')}
+          className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'timesheet' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
+        >
+          <Clock size={16} className="mr-2" /> My Timesheet
+        </button>
+        <button 
+          onClick={() => setActiveTab('leaves')}
+          className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'leaves' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
+        >
+          <CalendarRange size={16} className="mr-2" /> My Leaves
+        </button>
+      </div>
+
+      {activeTab === 'info' && (
       <div className="bg-[var(--color-surface)] rounded-2xl shadow-sm border border-[var(--color-border)] overflow-hidden">
         <div className="p-8 border-b border-[var(--color-border)] bg-gradient-to-r from-[var(--color-bg)] to-[var(--color-surface)] flex items-center gap-6">
           <div className="w-24 h-24 rounded-full bg-[var(--color-main)] flex items-center justify-center text-white font-serif font-bold text-4xl shadow-md border-4 border-white dark:border-[var(--color-surface)]">
@@ -141,6 +226,187 @@ const Profile: React.FC = () => {
           </div>
         </form>
       </div>
+      )}
+
+      {activeTab === 'timesheet' && (
+        <div className="bg-[var(--color-surface)] rounded-2xl shadow-sm border border-[var(--color-border)] overflow-hidden">
+          <div className="p-6 border-b border-[var(--color-border)] flex justify-between items-center">
+            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">My Attendance Log</h3>
+            <button 
+              onClick={() => {
+                if (!userEmployee) {
+                  setMessage({ type: 'error', text: 'You do not have an associated employee record to log attendance.' });
+                  return;
+                }
+                setAttendanceForm({ employee_id: userEmployee.id, date: new Date().toISOString().split('T')[0], clock_in: '', clock_out: '', status: 'present' });
+                setIsAttendanceModalOpen(true);
+              }}
+              className="px-4 py-2 bg-[var(--color-main)]/10 text-[var(--color-main)] font-bold rounded-xl hover:bg-[var(--color-main)]/20 transition-colors flex items-center"
+            >
+              <Clock size={16} className="mr-2" /> Log Attendance
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-[var(--color-text)]">
+              <thead className="bg-[var(--color-bg)]/50 border-b border-[var(--color-text)]/20">
+                <tr>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Date</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Clock In</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Clock Out</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-text)]/10">
+                {myAttendance.map((record) => (
+                  <tr key={record.id} className="hover:bg-[var(--color-text)]/[0.02] transition-colors">
+                    <td className="p-4 font-medium">{new Date(record.date).toLocaleDateString()}</td>
+                    <td className="p-4">{record.clock_in ? new Date(record.clock_in).toLocaleTimeString() : '-'}</td>
+                    <td className="p-4">{record.clock_out ? new Date(record.clock_out).toLocaleTimeString() : '-'}</td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                        record.status === 'present' ? 'bg-emerald-100 text-emerald-700' :
+                        record.status === 'absent' ? 'bg-rose-100 text-rose-700' :
+                        record.status === 'late' ? 'bg-amber-100 text-amber-700' :
+                        'bg-blue-100 text-blue-700'
+                      }`}>
+                        {record.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {myAttendance.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-[var(--color-text)]/40">No attendance records found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'leaves' && (
+        <div className="bg-[var(--color-surface)] rounded-2xl shadow-sm border border-[var(--color-border)] overflow-hidden">
+          <div className="p-6 border-b border-[var(--color-border)] flex justify-between items-center">
+            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">My Leave Requests</h3>
+            <button 
+              onClick={() => {
+                if (!userEmployee) {
+                  setMessage({ type: 'error', text: 'You do not have an associated employee record to request leaves.' });
+                  return;
+                }
+                setLeaveForm({ employee_id: userEmployee.id, start_date: new Date().toISOString().split('T')[0], end_date: new Date().toISOString().split('T')[0], type: 'annual', reason: '' });
+                setIsLeaveModalOpen(true);
+              }}
+              className="px-4 py-2 bg-[var(--color-main)]/10 text-[var(--color-main)] font-bold rounded-xl hover:bg-[var(--color-main)]/20 transition-colors flex items-center"
+            >
+              <CalendarRange size={16} className="mr-2" /> Apply Leave
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-[var(--color-text)]">
+              <thead className="bg-[var(--color-bg)]/50 border-b border-[var(--color-text)]/20">
+                <tr>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Leave Type</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Dates</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Reason</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-text)]/10">
+                {myLeaves.map((leave) => (
+                  <tr key={leave.id} className="hover:bg-[var(--color-text)]/[0.02] transition-colors">
+                    <td className="p-4 font-medium capitalize">{leave.type.replace('_', ' ')}</td>
+                    <td className="p-4">
+                      {new Date(leave.start_date).toLocaleDateString()} - {new Date(leave.end_date).toLocaleDateString()}
+                    </td>
+                    <td className="p-4 text-[var(--color-text)]/80 max-w-xs truncate" title={leave.reason}>{leave.reason || '-'}</td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                        leave.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
+                        leave.status === 'rejected' ? 'bg-rose-100 text-rose-700' :
+                        'bg-amber-100 text-amber-700'
+                      }`}>
+                        {leave.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {myLeaves.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="p-8 text-center text-[var(--color-text)]/40">No leave requests found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Attendance Modal */}
+      <Modal isOpen={isAttendanceModalOpen} onClose={() => setIsAttendanceModalOpen(false)} title="Log My Attendance">
+        <form onSubmit={handleAttendanceSubmit} className="space-y-6">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Date</label>
+            <input type="date" required value={attendanceForm.date} onChange={e => setAttendanceForm({ ...attendanceForm, date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Clock In</label>
+              <input type="datetime-local" value={attendanceForm.clock_in} onChange={e => setAttendanceForm({ ...attendanceForm, clock_in: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Clock Out</label>
+              <input type="datetime-local" value={attendanceForm.clock_out} onChange={e => setAttendanceForm({ ...attendanceForm, clock_out: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Status</label>
+            <select required value={attendanceForm.status} onChange={e => setAttendanceForm({ ...attendanceForm, status: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
+              <option value="present">Present</option>
+              <option value="absent">Absent</option>
+              <option value="late">Late</option>
+              <option value="half_day">Half Day</option>
+            </select>
+          </div>
+          <button disabled={submitting} type="submit" className="w-full bg-[var(--color-main)] text-white py-4 rounded-2xl font-bold shadow-lg">
+            {submitting ? 'Saving...' : 'Log Attendance'}
+          </button>
+        </form>
+      </Modal>
+
+      {/* Leave Request Modal */}
+      <Modal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} title="Apply for Leave">
+        <form onSubmit={handleLeaveSubmit} className="space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Start Date</label>
+              <input type="date" required value={leaveForm.start_date} onChange={e => setLeaveForm({ ...leaveForm, start_date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">End Date</label>
+              <input type="date" required value={leaveForm.end_date} onChange={e => setLeaveForm({ ...leaveForm, end_date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Leave Type</label>
+            <select required value={leaveForm.type} onChange={e => setLeaveForm({ ...leaveForm, type: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
+              <option value="annual">Annual Leave</option>
+              <option value="sick">Sick Leave</option>
+              <option value="maternity">Maternity/Paternity Leave</option>
+              <option value="unpaid">Unpaid Leave</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Reason</label>
+            <textarea required value={leaveForm.reason} onChange={e => setLeaveForm({ ...leaveForm, reason: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
+          </div>
+          <button disabled={submitting} type="submit" className="w-full bg-[var(--color-main)] text-white py-4 rounded-2xl font-bold shadow-lg">
+            {submitting ? 'Submitting...' : 'Submit Request'}
+          </button>
+        </form>
+      </Modal>
     </motion.div>
   );
 };

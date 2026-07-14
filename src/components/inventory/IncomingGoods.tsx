@@ -9,8 +9,8 @@ interface IncomingGoodsProps {
 
 const IncomingGoods: React.FC<IncomingGoodsProps> = ({ pendingPOs, onReceive }) => {
   return (
-    <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 overflow-hidden">
-      <div className="p-6 border-b border-[var(--color-text)]/5">
+    <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
+      <div className="p-6 border-b border-[var(--color-text)]/20">
         <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Pending Receipts</h3>
       </div>
       <div className="divide-y divide-[var(--color-text)]/5">

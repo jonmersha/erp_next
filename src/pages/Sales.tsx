@@ -170,8 +170,8 @@ const Sales: React.FC = () => {
         />
       </div>
 
-      <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/5 overflow-hidden">
-        <div className="p-6 border-b border-[var(--color-text)]/5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
+        <div className="p-6 border-b border-[var(--color-text)]/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Sales Orders</h3>
           <div className="relative w-full md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text)]/20" size={18} />
@@ -180,7 +180,7 @@ const Sales: React.FC = () => {
               placeholder="Search orders..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-sm"
+              className="w-full pl-10 pr-4 py-2 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-sm"
             />
           </div>
         </div>
@@ -283,7 +283,7 @@ const Sales: React.FC = () => {
                 required
                 value={form.outletId}
                 onChange={e => setForm({ ...form, outletId: e.target.value })}
-                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
               >
                 <option value="">Select Outlet</option>
                 {outlets.map(o => (
@@ -298,7 +298,7 @@ const Sales: React.FC = () => {
                 required
                 value={form.createdAt}
                 onChange={e => setForm({ ...form, createdAt: e.target.value })}
-                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/5 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
+                className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-[var(--color-text)]"
               />
             </div>
           </div>
@@ -315,14 +315,14 @@ const Sales: React.FC = () => {
               </button>
             </div>
             {form.items.map((item, index) => (
-              <div key={index} className="grid grid-cols-12 gap-3 items-end bg-[var(--color-text)]/[0.02] p-3 rounded-2xl border border-[var(--color-text)]/5">
+              <div key={index} className="grid grid-cols-12 gap-3 items-end bg-[var(--color-text)]/[0.02] p-3 rounded-2xl border border-[var(--color-text)]/20">
                 <div className="col-span-5 space-y-1">
                   <label className="text-[10px] font-bold text-[var(--color-text)]/20 uppercase tracking-widest">Product</label>
                   <select 
                     required
                     value={item.productId}
                     onChange={e => updateItem(index, 'productId', e.target.value)}
-                    className="w-full p-2 bg-[var(--color-bg)] rounded-lg border border-[var(--color-text)]/5 text-sm text-[var(--color-text)]"
+                    className="w-full p-2 bg-[var(--color-bg)] rounded-lg border border-[var(--color-text)]/20 text-sm text-[var(--color-text)]"
                   >
                     <option value="">Select Product</option>
                     {products.map(p => (
@@ -338,7 +338,7 @@ const Sales: React.FC = () => {
                     min="1"
                     value={item.quantity}
                     onChange={e => updateItem(index, 'quantity', parseInt(e.target.value) || 0)}
-                    className="w-full p-2 bg-[var(--color-bg)] rounded-lg border border-[var(--color-text)]/5 text-sm text-[var(--color-text)]"
+                    className="w-full p-2 bg-[var(--color-bg)] rounded-lg border border-[var(--color-text)]/20 text-sm text-[var(--color-text)]"
                   />
                 </div>
                 <div className="col-span-3 space-y-1">
@@ -350,7 +350,7 @@ const Sales: React.FC = () => {
                     step="0.01"
                     value={item.price}
                     onChange={e => updateItem(index, 'price', parseFloat(e.target.value) || 0)}
-                    className="w-full p-2 bg-[var(--color-bg)] rounded-lg border border-[var(--color-text)]/5 text-sm text-[var(--color-text)]"
+                    className="w-full p-2 bg-[var(--color-bg)] rounded-lg border border-[var(--color-text)]/20 text-sm text-[var(--color-text)]"
                   />
                 </div>
                 <div className="col-span-1 pb-1">
@@ -366,7 +366,7 @@ const Sales: React.FC = () => {
             ))}
           </div>
 
-          <div className="pt-4 border-t border-[var(--color-text)]/5 flex justify-between items-center">
+          <div className="pt-4 border-t border-[var(--color-text)]/20 flex justify-between items-center">
             <div className="text-right flex-1 pr-4">
               <p className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Total Amount</p>
               <p className="text-2xl font-serif font-bold text-[var(--color-text)]">

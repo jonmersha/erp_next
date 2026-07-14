@@ -58,7 +58,7 @@ const Maintenance: React.FC = () => {
         <p className="text-[var(--color-text)]/40 mt-1">Track equipment maintenance schedules, spare parts, and breakdown history.</p>
       </header>
 
-      <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/5 shadow-sm">
+      <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-bold text-[var(--color-text)]">Maintenance Logs</h3>
           <button 
@@ -71,7 +71,7 @@ const Maintenance: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {logs.map(log => (
-            <div key={log.id} className="border border-[var(--color-text)]/5 p-6 rounded-2xl space-y-4">
+            <div key={log.id} className="border border-[var(--color-text)]/20 p-6 rounded-2xl space-y-4">
               <div className="flex items-center space-x-3">
                 <Wrench className="text-[var(--color-main)]" />
                 <h4 className="font-bold text-lg text-[var(--color-text)]">{log.description}</h4>
@@ -88,21 +88,21 @@ const Maintenance: React.FC = () => {
           <input
             type="text"
             placeholder="Description"
-            className="w-full p-3 bg-[var(--color-bg)] border border-[var(--color-text)]/5 rounded-xl"
+            className="w-full p-3 bg-[var(--color-bg)] border border-[var(--color-text)]/20 rounded-xl"
             value={newLog.description}
             onChange={e => setNewLog(prev => ({ ...prev, description: e.target.value }))}
           />
           <input
             type="text"
             placeholder="Technician"
-            className="w-full p-3 bg-[var(--color-bg)] border border-[var(--color-text)]/5 rounded-xl"
+            className="w-full p-3 bg-[var(--color-bg)] border border-[var(--color-text)]/20 rounded-xl"
             value={newLog.technician}
             onChange={e => setNewLog(prev => ({ ...prev, technician: e.target.value }))}
           />
           <input
             type="number"
             placeholder="Cost"
-            className="w-full p-3 bg-[var(--color-bg)] border border-[var(--color-text)]/5 rounded-xl"
+            className="w-full p-3 bg-[var(--color-bg)] border border-[var(--color-text)]/20 rounded-xl"
             value={newLog.cost}
             onChange={e => setNewLog(prev => ({ ...prev, cost: Number(e.target.value) }))}
           />

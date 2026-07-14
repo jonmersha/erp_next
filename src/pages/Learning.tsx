@@ -31,7 +31,7 @@ const Learning: React.FC<{ feature?: string; }> = ({ feature }) => {
         </div>
       </header>
 
-      <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/5 shadow-sm space-y-6">
+      <div className="bg-[var(--color-surface)] p-8 rounded-3xl border border-[var(--color-text)]/20 shadow-sm space-y-6">
         <h3 className="text-xl font-bold text-[var(--color-text)]">How it Works</h3>
         <ul className="space-y-4">
           {content.howItWorks.map((step, index) => (

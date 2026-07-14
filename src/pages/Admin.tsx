@@ -26,7 +26,7 @@ const Admin: React.FC = () => {
           <Link
             key={task.name}
             href={task.path}
-            className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/5 hover:border-[var(--color-main)]/50 transition-all group"
+            className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 hover:border-[var(--color-main)]/50 transition-all group"
           >
             <div className="w-12 h-12 bg-[var(--color-main)]/10 text-[var(--color-main)] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <task.icon size={24} />

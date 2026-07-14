@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ProcurementPlan, Warehouse, RawMaterial, Factory, Product } from '../../types';
-import { getProcurementPlans, deleteProcurementPlan } from '../../services/planningService';
+import { getProcurementPlans, deleteProcurementPlan, approveProcurementPlan } from '../../services/planningService';
 import { useAuth } from '../../context/AuthContext';
-import { Loader2, Plus, Info } from 'lucide-react';
+import { Loader2, Plus, Info, CheckCircle2 } from 'lucide-react';
 import ProcurementPlanModal from './ProcurementPlanModal';
 import ProcurementPlanDetailsModal from './ProcurementPlanDetailsModal';
 
@@ -45,6 +45,17 @@ const ProcurementPlanList: React.FC<Props> = ({ warehouses, materials, factories
     }
   };
 
+  const handleApprove = async (plan: ProcurementPlan) => {
+    try {
+      if (profile?.uid) {
+        await approveProcurementPlan(plan.id, profile.uid);
+        fetchPlans();
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to approve plan');
+    }
+  };
+
   if (loading) return <Loader2 className="animate-spin mx-auto" />;
 
   return (
@@ -75,7 +86,7 @@ const ProcurementPlanList: React.FC<Props> = ({ warehouses, materials, factories
           {plans.map(plan => (
             <tr 
               key={plan.id} 
-              className="border-t border-[var(--color-text)]/5 cursor-pointer hover:bg-[var(--color-text)]/5"
+              className="border-t border-[var(--color-text)]/20 cursor-pointer hover:bg-[var(--color-text)]/5"
               onClick={() => setSelectedPlan(plan)}
             >
               <td className="py-3">{factories.find(f => f.id === plan.factoryId)?.name || plan.factoryId || '-'}</td>
@@ -87,6 +98,15 @@ const ProcurementPlanList: React.FC<Props> = ({ warehouses, materials, factories
               <td className="py-3">{(plan.totalQuantity || 0).toLocaleString()}</td>
               <td className="py-3 capitalize">{plan.status}</td>
               <td className="py-3 flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                {plan.status === 'pending_approval' && profile?.uid !== plan.createdBy && ['admin', 'factory_manager', 'finance_manager'].includes(profile?.role || '') && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleApprove(plan); }}
+                    className="text-[var(--color-main)] hover:text-[var(--color-main)]/80"
+                    title="Approve Plan"
+                  >
+                    <CheckCircle2 size={18} />
+                  </button>
+                )}
                 <button 
                   onClick={() => setSelectedPlan(plan)}
                   className="text-[var(--color-main)] hover:text-[var(--color-main)]/80"

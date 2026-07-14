@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ProductionPlan, Factory, Product, Recipe, RawMaterial } from '../../types';
-import { getProductionPlans, deleteProductionPlan } from '../../services/planningService';
+import { getProductionPlans, deleteProductionPlan, approveProductionPlan } from '../../services/planningService';
 import { getRecipes, addRecipe } from '../../services/recipeService';
 import { useAuth } from '../../context/AuthContext';
 import { Loader2, Plus, Info } from 'lucide-react';
@@ -93,6 +93,17 @@ const ProductionPlanList: React.FC<Props> = ({ factories, products, materials })
     }
   };
 
+  const handleApprove = async (plan: ProductionPlan) => {
+    try {
+      if (profile?.uid) {
+        await approveProductionPlan(plan.id, profile.uid);
+        fetchPlans();
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to approve plan');
+    }
+  };
+
   if (loading) return <Loader2 className="animate-spin mx-auto" />;
 
   return (
@@ -122,7 +133,7 @@ const ProductionPlanList: React.FC<Props> = ({ factories, products, materials })
           {plans.map(plan => (
             <tr 
               key={plan.id} 
-              className="border-t border-[var(--color-text)]/5 cursor-pointer hover:bg-[var(--color-text)]/5"
+              className="border-t border-[var(--color-text)]/20 cursor-pointer hover:bg-[var(--color-text)]/5"
               onClick={() => setSelectedPlan(plan)}
             >
               <td className="py-3">{factories.find(f => f.id === plan.factoryId)?.name || plan.factoryId}</td>
@@ -131,6 +142,16 @@ const ProductionPlanList: React.FC<Props> = ({ factories, products, materials })
               <td className="py-3">{(plan.totalQuantity || 0).toLocaleString()}</td>
               <td className="py-3 capitalize">{plan.status}</td>
               <td className="py-3 flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                {plan.status === 'pending_approval' && profile?.uid !== plan.createdBy && ['admin', 'factory_manager'].includes(profile?.role || '') && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleApprove(plan); }}
+                    className="text-[var(--color-main)] hover:text-[var(--color-main)]/80"
+                    title="Approve Plan"
+                  >
+                    <Plus size={18} className="transform rotate-45" /> {/* Use Check icon if possible, but keeping Plus rotated or import Check */}
+                    Approve
+                  </button>
+                )}
                 <button 
                   onClick={() => setSelectedPlan(plan)}
                   className="text-[var(--color-main)] hover:text-[var(--color-main)]/80"
