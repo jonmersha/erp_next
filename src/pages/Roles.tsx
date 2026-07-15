@@ -18,21 +18,21 @@ const Roles: React.FC = () => {
   const [formData, setFormData] = useState<{name: string, description: string, permissions: RolePermissions}>({ name: '', description: '', permissions: {} });
 
   const modulesList = [
-    { id: 'hr', label: 'Human Resources' },
-    { id: 'users', label: 'User Management' },
-    { id: 'roles', label: 'Roles & Permissions' },
-    { id: 'settings', label: 'Company Settings' },
-    { id: 'master_data', label: 'Master Data' },
-    { id: 'planning', label: 'Production Planning' },
-    { id: 'procurement', label: 'Procurement' },
-    { id: 'inventory', label: 'Inventory' },
-    { id: 'production', label: 'Production Runs' },
-    { id: 'recipes', label: 'Recipes (BOM)' },
-    { id: 'maintenance', label: 'Maintenance' },
-    { id: 'logistics', label: 'Logistics' },
-    { id: 'quality', label: 'Quality Control' },
-    { id: 'sales', label: 'Sales' },
-    { id: 'finance', label: 'Finance' }
+    { id: 'hr', label: t('Human Resources') },
+    { id: 'users', label: t('User Management') },
+    { id: 'roles', label: t('Roles & Permissions') },
+    { id: 'settings', label: t('Company Settings') },
+    { id: 'master_data', label: t('Master Data') },
+    { id: 'planning', label: t('Production Planning') },
+    { id: 'procurement', label: t('Procurement') },
+    { id: 'inventory', label: t('Inventory') },
+    { id: 'production', label: t('Production Runs') },
+    { id: 'recipes', label: t('Recipes (BOM)') },
+    { id: 'maintenance', label: t('Maintenance') },
+    { id: 'logistics', label: t('Logistics') },
+    { id: 'quality', label: t('Quality Control') },
+    { id: 'sales', label: t('Sales') },
+    { id: 'finance', label: t('Finance') }
   ];
 
   const handlePermissionChange = (moduleId: string, action: string, checked: boolean) => {
@@ -86,7 +86,7 @@ const Roles: React.FC = () => {
       setFormData({ name: '', description: '', permissions: {} });
     } catch (error) {
       console.error('Error saving role:', error);
-      alert('Failed to save role. Name must be unique.');
+      alert(t('Failed to save role. Name must be unique.'));
     }
   };
 
@@ -152,7 +152,7 @@ const Roles: React.FC = () => {
                       <div className="text-sm font-medium text-[var(--color-text)]">{role.name}</div>
                       {role.is_system && (
                         <span className="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
-                          System
+                          {t('System')}
                         </span>
                       )}
                     </div>

@@ -10,18 +10,22 @@ export const useProductionData = () => {
   const [plans, setPlans] = useState<ProductionPlan[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [workflowTemplates, setWorkflowTemplates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     if (!profile?.companyId) return;
     try {
       const companyId = profile.companyId;
-      const [factoriesData, runsData, plansData, productsData, recipesData] = await Promise.all([
+      const [factoriesData, runsData, plansData, productsData, recipesData, usersData, templatesData] = await Promise.all([
         fetchCollection('factories', companyId),
         fetchCollection('productionRuns', companyId, { orderByField: 'startDate', orderDir: 'desc' }),
         fetchCollection('productionPlans', companyId),
         fetchCollection('products', companyId),
-        fetchCollection('recipes', companyId)
+        fetchCollection('recipes', companyId),
+        fetchCollection('users', companyId),
+        fetchCollection('workflowTemplates', companyId)
       ]);
 
       if (Array.isArray(factoriesData)) setFactories(factoriesData as any);
@@ -29,6 +33,8 @@ export const useProductionData = () => {
       if (Array.isArray(plansData)) setPlans(plansData as any);
       if (Array.isArray(productsData)) setProducts(productsData as any);
       if (Array.isArray(recipesData)) setRecipes(recipesData as any);
+      if (Array.isArray(usersData)) setUsers(usersData as any);
+      if (Array.isArray(templatesData)) setWorkflowTemplates(templatesData as any);
     } catch (error) {
       console.error("Error fetching production data:", error);
     } finally {
@@ -48,6 +54,8 @@ export const useProductionData = () => {
     plans,
     products,
     recipes,
+    users,
+    workflowTemplates,
     loading,
     refreshData: fetchData
   };

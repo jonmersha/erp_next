@@ -30,7 +30,8 @@ const Profile: React.FC = () => {
     date: new Date().toISOString().split('T')[0],
     clock_in: '',
     clock_out: '',
-    status: 'present'
+    status: 'present',
+    overtime_hours: 0
   });
 
   // Leave State
@@ -135,19 +136,19 @@ const Profile: React.FC = () => {
           onClick={() => setActiveTab('info')}
           className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'info' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
         >
-          <Info size={16} className="mr-2" /> Personal Info
+          <Info size={16} className="mr-2" /> {t('Personal Info')}
         </button>
         <button 
           onClick={() => setActiveTab('timesheet')}
           className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'timesheet' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
         >
-          <Clock size={16} className="mr-2" /> My Timesheet
+          <Clock size={16} className="mr-2" /> {t('My Timesheet')}
         </button>
         <button 
           onClick={() => setActiveTab('leaves')}
           className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'leaves' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
         >
-          <CalendarRange size={16} className="mr-2" /> My Leaves
+          <CalendarRange size={16} className="mr-2" /> {t('My Leaves')}
         </button>
       </div>
 
@@ -171,7 +172,7 @@ const Profile: React.FC = () => {
                 </span>
               ))}
               {(!profile.roles || profile.roles.length === 0) && (
-                <span className="text-xs text-[var(--color-text)]/40 italic">No roles assigned</span>
+                <span className="text-xs text-[var(--color-text)]/40 italic">{t('No roles assigned')}</span>
               )}
             </div>
           </div>
@@ -186,7 +187,7 @@ const Profile: React.FC = () => {
           )}
           
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">Full Name</label>
+            <label className="text-[11px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">{t('Full Name')}</label>
             <div className="relative">
               <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text)]/30" size={20} />
               <input
@@ -201,7 +202,7 @@ const Profile: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">Email Address</label>
+            <label className="text-[11px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">{t('Email Address')}</label>
             <div className="relative opacity-60 cursor-not-allowed">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text)]/30" size={20} />
               <input
@@ -211,7 +212,7 @@ const Profile: React.FC = () => {
                 className="w-full pl-12 pr-4 py-4 bg-[var(--color-bg)] border border-[var(--color-text)]/10 rounded-2xl transition-all font-medium text-[var(--color-text)] cursor-not-allowed"
               />
             </div>
-            <p className="text-xs text-[var(--color-text)]/40 pl-1">Email is linked to your Google Account and cannot be changed.</p>
+            <p className="text-xs text-[var(--color-text)]/40 pl-1">{t('Email is linked to your Google Account and cannot be changed.')}</p>
           </div>
 
           <div className="pt-4 border-t border-[var(--color-border)]">
@@ -231,29 +232,46 @@ const Profile: React.FC = () => {
       {activeTab === 'timesheet' && (
         <div className="bg-[var(--color-surface)] rounded-2xl shadow-sm border border-[var(--color-border)] overflow-hidden">
           <div className="p-6 border-b border-[var(--color-border)] flex justify-between items-center">
-            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">My Attendance Log</h3>
+            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">{t('My Attendance Log')}</h3>
             <button 
               onClick={() => {
                 if (!userEmployee) {
                   setMessage({ type: 'error', text: 'You do not have an associated employee record to log attendance.' });
                   return;
                 }
-                setAttendanceForm({ employee_id: userEmployee.id, date: new Date().toISOString().split('T')[0], clock_in: '', clock_out: '', status: 'present' });
+                const dateStr = new Date().toISOString().split('T')[0];
+                const d = new Date(dateStr + 'T12:00:00Z');
+                let clockIn = '';
+                let clockOut = '';
+                if (d.getDay() !== 0) { // Not Sunday
+                  clockIn = `${dateStr}T08:00`;
+                  clockOut = `${dateStr}T17:00`;
+                }
+                
+                setAttendanceForm({ 
+                  employee_id: userEmployee.id, 
+                  date: dateStr, 
+                  clock_in: clockIn, 
+                  clock_out: clockOut, 
+                  status: 'present',
+                  overtime_hours: 0
+                });
                 setIsAttendanceModalOpen(true);
               }}
               className="px-4 py-2 bg-[var(--color-main)]/10 text-[var(--color-main)] font-bold rounded-xl hover:bg-[var(--color-main)]/20 transition-colors flex items-center"
             >
-              <Clock size={16} className="mr-2" /> Log Attendance
+              <Clock size={16} className="mr-2" /> {t('Log Attendance')}
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-[var(--color-text)]">
               <thead className="bg-[var(--color-bg)]/50 border-b border-[var(--color-text)]/20">
                 <tr>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Date</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Clock In</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Clock Out</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Status</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Date')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Clock In')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Clock Out')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Overtime')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Status')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-text)]/10">
@@ -262,6 +280,7 @@ const Profile: React.FC = () => {
                     <td className="p-4 font-medium">{new Date(record.date).toLocaleDateString()}</td>
                     <td className="p-4">{record.clock_in ? new Date(record.clock_in).toLocaleTimeString() : '-'}</td>
                     <td className="p-4">{record.clock_out ? new Date(record.clock_out).toLocaleTimeString() : '-'}</td>
+                    <td className="p-4">{record.overtime_hours > 0 ? `${record.overtime_hours} hrs` : '-'}</td>
                     <td className="p-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                         record.status === 'present' ? 'bg-emerald-100 text-emerald-700' :
@@ -276,7 +295,7 @@ const Profile: React.FC = () => {
                 ))}
                 {myAttendance.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="p-8 text-center text-[var(--color-text)]/40">No attendance records found.</td>
+                    <td colSpan={5} className="p-8 text-center text-[var(--color-text)]/40">{t('No attendance records found.')}</td>
                   </tr>
                 )}
               </tbody>
@@ -288,7 +307,7 @@ const Profile: React.FC = () => {
       {activeTab === 'leaves' && (
         <div className="bg-[var(--color-surface)] rounded-2xl shadow-sm border border-[var(--color-border)] overflow-hidden">
           <div className="p-6 border-b border-[var(--color-border)] flex justify-between items-center">
-            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">My Leave Requests</h3>
+            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">{t('My Leave Requests')}</h3>
             <button 
               onClick={() => {
                 if (!userEmployee) {
@@ -300,17 +319,17 @@ const Profile: React.FC = () => {
               }}
               className="px-4 py-2 bg-[var(--color-main)]/10 text-[var(--color-main)] font-bold rounded-xl hover:bg-[var(--color-main)]/20 transition-colors flex items-center"
             >
-              <CalendarRange size={16} className="mr-2" /> Apply Leave
+              <CalendarRange size={16} className="mr-2" /> {t('Apply Leave')}
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-[var(--color-text)]">
               <thead className="bg-[var(--color-bg)]/50 border-b border-[var(--color-text)]/20">
                 <tr>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Leave Type</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Dates</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Reason</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Status</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Leave Type')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Dates')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Reason')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Status')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-text)]/10">
@@ -334,7 +353,7 @@ const Profile: React.FC = () => {
                 ))}
                 {myLeaves.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="p-8 text-center text-[var(--color-text)]/40">No leave requests found.</td>
+                    <td colSpan={4} className="p-8 text-center text-[var(--color-text)]/40">{t('No leave requests found.')}</td>
                   </tr>
                 )}
               </tbody>
@@ -344,66 +363,92 @@ const Profile: React.FC = () => {
       )}
 
       {/* Attendance Modal */}
-      <Modal isOpen={isAttendanceModalOpen} onClose={() => setIsAttendanceModalOpen(false)} title="Log My Attendance">
+      <Modal isOpen={isAttendanceModalOpen} onClose={() => setIsAttendanceModalOpen(false)} title={t('Log My Attendance')}>
         <form onSubmit={handleAttendanceSubmit} className="space-y-6">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Date</label>
+            <div className="flex justify-between items-end">
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Date')}</label>
+              <button 
+                type="button"
+                onClick={() => {
+                  const d = new Date(attendanceForm.date + 'T12:00:00Z');
+                  if (d.getDay() === 0) { // Sunday
+                    setMessage({ type: 'error', text: 'Cannot set standard shift on a Sunday (Rest Day).' });
+                    return;
+                  }
+                  setAttendanceForm({
+                    ...attendanceForm,
+                    clock_in: `${attendanceForm.date}T08:00`,
+                    clock_out: `${attendanceForm.date}T17:00`
+                  });
+                }}
+                className="text-xs font-bold text-[var(--color-main)] hover:underline"
+              >
+                {t('Set Standard Shift (08:00 - 17:00)')}
+              </button>
+            </div>
             <input type="date" required value={attendanceForm.date} onChange={e => setAttendanceForm({ ...attendanceForm, date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Clock In</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Clock In')}</label>
               <input type="datetime-local" value={attendanceForm.clock_in} onChange={e => setAttendanceForm({ ...attendanceForm, clock_in: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Clock Out</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Clock Out')}</label>
               <input type="datetime-local" value={attendanceForm.clock_out} onChange={e => setAttendanceForm({ ...attendanceForm, clock_out: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Status</label>
-            <select required value={attendanceForm.status} onChange={e => setAttendanceForm({ ...attendanceForm, status: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
-              <option value="present">Present</option>
-              <option value="absent">Absent</option>
-              <option value="late">Late</option>
-              <option value="half_day">Half Day</option>
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Status')}</label>
+              <select required value={attendanceForm.status} onChange={e => setAttendanceForm({ ...attendanceForm, status: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
+                <option value="present">{t('Present')}</option>
+                <option value="absent">{t('Absent')}</option>
+                <option value="late">{t('Late')}</option>
+                <option value="half_day">{t('Half Day')}</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Overtime (Hrs)')}</label>
+              <input type="number" step="0.5" min="0" value={attendanceForm.overtime_hours} onChange={e => setAttendanceForm({ ...attendanceForm, overtime_hours: parseFloat(e.target.value) || 0 })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
+            </div>
           </div>
           <button disabled={submitting} type="submit" className="w-full bg-[var(--color-main)] text-white py-4 rounded-2xl font-bold shadow-lg">
-            {submitting ? 'Saving...' : 'Log Attendance'}
+            {submitting ? t('Saving...') : t('Log Attendance')}
           </button>
         </form>
       </Modal>
 
       {/* Leave Request Modal */}
-      <Modal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} title="Apply for Leave">
+      <Modal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} title={t('Apply for Leave')}>
         <form onSubmit={handleLeaveSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Start Date</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Start Date')}</label>
               <input type="date" required value={leaveForm.start_date} onChange={e => setLeaveForm({ ...leaveForm, start_date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">End Date</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('End Date')}</label>
               <input type="date" required value={leaveForm.end_date} onChange={e => setLeaveForm({ ...leaveForm, end_date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Leave Type</label>
+            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Leave Type')}</label>
             <select required value={leaveForm.type} onChange={e => setLeaveForm({ ...leaveForm, type: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
-              <option value="annual">Annual Leave</option>
-              <option value="sick">Sick Leave</option>
-              <option value="maternity">Maternity/Paternity Leave</option>
-              <option value="unpaid">Unpaid Leave</option>
-              <option value="other">Other</option>
+              <option value="annual">{t('Annual Leave')}</option>
+              <option value="sick">{t('Sick Leave')}</option>
+              <option value="maternity">{t('Maternity/Paternity Leave')}</option>
+              <option value="unpaid">{t('Unpaid Leave')}</option>
+              <option value="other">{t('Other')}</option>
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Reason</label>
+            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Reason')}</label>
             <textarea required value={leaveForm.reason} onChange={e => setLeaveForm({ ...leaveForm, reason: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
           </div>
           <button disabled={submitting} type="submit" className="w-full bg-[var(--color-main)] text-white py-4 rounded-2xl font-bold shadow-lg">
-            {submitting ? 'Submitting...' : 'Submit Request'}
+            {submitting ? t('Submitting...') : t('Submit Request')}
           </button>
         </form>
       </Modal>

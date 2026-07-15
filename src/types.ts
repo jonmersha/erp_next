@@ -191,6 +191,17 @@ export interface ProductionRun {
   companyId: string;
 }
 
+export interface ProductionEvent {
+  id: string;
+  runId: string;
+  eventType: 'grain_intake' | 'conditioning' | 'milling' | 'blending' | 'packaging';
+  notes?: string;
+  payload?: any;
+  performedBy?: string;
+  companyId: string;
+  createdAt: string;
+}
+
 export interface ProcurementPlan {
   id: string;
   factoryId: string;

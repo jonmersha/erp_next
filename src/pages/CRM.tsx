@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { useCRMData, Customer, Ticket, Interaction } from '../hooks/useCRMData';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, MessageSquare, Activity, Plus, Search, Loader2, Phone, Mail, MapPin, 
@@ -16,6 +17,7 @@ import {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 const CRM: React.FC = () => {
+  const { t } = useTranslation();
   const { customers, tickets, interactions, loading, createCustomer, updateCustomer, deleteCustomer, createTicket, updateTicket, createInteraction } = useCRMData();
   const [activeTab, setActiveTab] = useState<'customers' | 'tickets' | 'interactions' | 'reports'>('customers');
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,12 +61,12 @@ const CRM: React.FC = () => {
       setEditingCustomer(null);
       setCustomerForm({ name: '', phone: '', email: '', address: '' });
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to save customer');
+      setErrorMsg(err.message || t('Failed to save customer'));
     }
   };
 
   const handleDeleteCustomer = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this customer? This will also delete their tickets and interactions.')) {
+    if (window.confirm(t('Are you sure you want to delete this customer? This will also delete their tickets and interactions.'))) {
       await deleteCustomer(id);
       if (viewCustomer?.id === id) setViewCustomer(null);
     }
@@ -92,7 +94,7 @@ const CRM: React.FC = () => {
       setEditingTicket(null);
       setTicketForm({ customerId: '', type: 'inquiry', status: 'open', resolutionNotes: '' });
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to save ticket');
+      setErrorMsg(err.message || t('Failed to save ticket'));
     }
   };
 
@@ -108,7 +110,7 @@ const CRM: React.FC = () => {
       setIsInteractionModalOpen(false);
       setInteractionForm({ customerId: '', interactionType: 'general', notes: '' });
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to save interaction');
+      setErrorMsg(err.message || t('Failed to save interaction'));
     }
   };
 
@@ -178,8 +180,8 @@ const CRM: React.FC = () => {
     <div className="space-y-8 pb-12">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-4xl font-serif font-bold text-[var(--color-main)]">CRM</h2>
-          <p className="text-[var(--color-text)]/40 mt-1">Manage customers, support tickets, and interactions.</p>
+          <h2 className="text-4xl font-serif font-bold text-[var(--color-main)]">{t('CRM')}</h2>
+          <p className="text-[var(--color-text)]/40 mt-1">{t('Manage customers, support tickets, and interactions.')}</p>
         </div>
         <div className="flex items-center space-x-3">
           <button 
@@ -191,7 +193,7 @@ const CRM: React.FC = () => {
             className="flex items-center space-x-2 px-6 py-2.5 bg-[var(--color-main)] text-white rounded-xl text-sm font-bold shadow-lg shadow-[var(--color-main)]/20 hover:scale-[1.02] transition-all"
           >
             <Plus size={16} />
-            <span>New Customer</span>
+            <span>{t('New Customer')}</span>
           </button>
         </div>
       </header>
@@ -204,7 +206,7 @@ const CRM: React.FC = () => {
               <Users size={24} />
             </div>
           </div>
-          <p className="text-sm font-medium text-[var(--color-text)]/40 uppercase tracking-widest">Total Customers</p>
+          <p className="text-sm font-medium text-[var(--color-text)]/40 uppercase tracking-widest">{t('Total Customers')}</p>
           <h3 className="text-3xl font-light text-[var(--color-text)] mt-1">{customers.length}</h3>
         </div>
         <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
@@ -213,7 +215,7 @@ const CRM: React.FC = () => {
               <MessageSquare size={24} />
             </div>
           </div>
-          <p className="text-sm font-medium text-[var(--color-text)]/40 uppercase tracking-widest">Open Tickets</p>
+          <p className="text-sm font-medium text-[var(--color-text)]/40 uppercase tracking-widest">{t('Open Tickets')}</p>
           <h3 className="text-3xl font-light text-[var(--color-text)] mt-1">{tickets.filter(t => t.status !== 'closed' && t.status !== 'resolved').length}</h3>
         </div>
         <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
@@ -222,7 +224,7 @@ const CRM: React.FC = () => {
               <Activity size={24} />
             </div>
           </div>
-          <p className="text-sm font-medium text-[var(--color-text)]/40 uppercase tracking-widest">Total Interactions</p>
+          <p className="text-sm font-medium text-[var(--color-text)]/40 uppercase tracking-widest">{t('Total Interactions')}</p>
           <h3 className="text-3xl font-light text-[var(--color-text)] mt-1">{interactions.length}</h3>
         </div>
       </div>
@@ -231,23 +233,23 @@ const CRM: React.FC = () => {
         <div className="border-b border-[var(--color-text)]/20 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex space-x-6 overflow-x-auto">
             <button onClick={() => setActiveTab('customers')} className={`pb-4 border-b-2 font-medium whitespace-nowrap transition-colors ${activeTab === 'customers' ? 'border-[var(--color-main)] text-[var(--color-main)]' : 'border-transparent text-[var(--color-text)]/40 hover:text-[var(--color-text)]'}`}>
-              <div className="flex items-center space-x-2"><Users size={18} /><span>Customers</span></div>
+              <div className="flex items-center space-x-2"><Users size={18} /><span>{t('Customers')}</span></div>
             </button>
             <button onClick={() => setActiveTab('tickets')} className={`pb-4 border-b-2 font-medium whitespace-nowrap transition-colors ${activeTab === 'tickets' ? 'border-[var(--color-main)] text-[var(--color-main)]' : 'border-transparent text-[var(--color-text)]/40 hover:text-[var(--color-text)]'}`}>
-              <div className="flex items-center space-x-2"><MessageSquare size={18} /><span>Tickets</span></div>
+              <div className="flex items-center space-x-2"><MessageSquare size={18} /><span>{t('Tickets')}</span></div>
             </button>
             <button onClick={() => setActiveTab('interactions')} className={`pb-4 border-b-2 font-medium whitespace-nowrap transition-colors ${activeTab === 'interactions' ? 'border-[var(--color-main)] text-[var(--color-main)]' : 'border-transparent text-[var(--color-text)]/40 hover:text-[var(--color-text)]'}`}>
-              <div className="flex items-center space-x-2"><Activity size={18} /><span>Interactions</span></div>
+              <div className="flex items-center space-x-2"><Activity size={18} /><span>{t('Interactions')}</span></div>
             </button>
             <button onClick={() => setActiveTab('reports')} className={`pb-4 border-b-2 font-medium whitespace-nowrap transition-colors ${activeTab === 'reports' ? 'border-[var(--color-main)] text-[var(--color-main)]' : 'border-transparent text-[var(--color-text)]/40 hover:text-[var(--color-text)]'}`}>
-              <div className="flex items-center space-x-2"><BarChart2 size={18} /><span>Reports</span></div>
+              <div className="flex items-center space-x-2"><BarChart2 size={18} /><span>{t('Reports')}</span></div>
             </button>
           </div>
           {activeTab !== 'reports' && (
             <div className="flex items-center space-x-3">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text)]/40" size={16} />
-                <input type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9 pr-4 py-2 bg-[var(--color-text)]/5 border-none rounded-xl text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none w-64" />
+                <input type="text" placeholder={t('Search...')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9 pr-4 py-2 bg-[var(--color-text)]/5 border-none rounded-xl text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none w-64" />
               </div>
               {activeTab === 'tickets' && (
                 <button onClick={() => { setEditingTicket(null); setTicketForm({ customerId: '', type: 'inquiry', status: 'open', resolutionNotes: '' }); setIsTicketModalOpen(true); }} className="p-2.5 bg-[var(--color-main)]/10 text-[var(--color-main)] rounded-xl hover:bg-[var(--color-main)]/20 transition-colors">
@@ -268,9 +270,9 @@ const CRM: React.FC = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[var(--color-text)]/40 border-b border-[var(--color-text)]/20">
-                  <th className="pb-4 font-medium pl-4">Customer Name</th>
-                  <th className="pb-4 font-medium">Contact</th>
-                  <th className="pb-4 font-medium text-right pr-4">Actions</th>
+                  <th className="pb-4 font-medium pl-4">{t('Customer Name')}</th>
+                  <th className="pb-4 font-medium">{t('Contact')}</th>
+                  <th className="pb-4 font-medium text-right pr-4">{t('Actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -296,12 +298,12 @@ const CRM: React.FC = () => {
                     <td className="py-4 pr-4 text-right">
                       <button onClick={(e) => openEditCustomer(customer, e)} className="p-2 text-[var(--color-text)]/40 hover:text-[var(--color-main)] transition-colors"><Edit2 size={16} /></button>
                       <button onClick={(e) => { e.stopPropagation(); handleDeleteCustomer(customer.id); }} className="p-2 text-[var(--color-text)]/40 hover:text-red-500 transition-colors mr-2"><Trash2 size={16} /></button>
-                      <button onClick={(e) => { e.stopPropagation(); setInteractionForm(prev => ({...prev, customerId: customer.id})); setIsInteractionModalOpen(true); }} className="text-xs px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors mr-2">Log Inter.</button>
-                      <button onClick={(e) => { e.stopPropagation(); setEditingTicket(null); setTicketForm({ customerId: customer.id, type: 'inquiry', status: 'open', resolutionNotes: '' }); setIsTicketModalOpen(true); }} className="text-xs px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors"><MessageSquare size={14} className="inline mr-1"/> Ticket</button>
+                      <button onClick={(e) => { e.stopPropagation(); setInteractionForm(prev => ({...prev, customerId: customer.id})); setIsInteractionModalOpen(true); }} className="text-xs px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors mr-2">{t('Log Inter.')}</button>
+                      <button onClick={(e) => { e.stopPropagation(); setEditingTicket(null); setTicketForm({ customerId: customer.id, type: 'inquiry', status: 'open', resolutionNotes: '' }); setIsTicketModalOpen(true); }} className="text-xs px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors"><MessageSquare size={14} className="inline mr-1"/> {t('Ticket')}</button>
                     </td>
                   </motion.tr>
                 ))}
-                {filteredCustomers.length === 0 && <tr><td colSpan={3} className="py-12 text-center text-[var(--color-text)]/40">No customers found.</td></tr>}
+                {filteredCustomers.length === 0 && <tr><td colSpan={3} className="py-12 text-center text-[var(--color-text)]/40">{t('No customers found.')}</td></tr>}
               </tbody>
             </table>
           )}
@@ -310,10 +312,10 @@ const CRM: React.FC = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[var(--color-text)]/40 border-b border-[var(--color-text)]/20">
-                  <th className="pb-4 font-medium pl-4">ID / Customer</th>
-                  <th className="pb-4 font-medium">Type</th>
-                  <th className="pb-4 font-medium">Status</th>
-                  <th className="pb-4 font-medium text-right pr-4">Actions</th>
+                  <th className="pb-4 font-medium pl-4">{t('ID / Customer')}</th>
+                  <th className="pb-4 font-medium">{t('Type')}</th>
+                  <th className="pb-4 font-medium">{t('Status')}</th>
+                  <th className="pb-4 font-medium text-right pr-4">{t('Actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -322,23 +324,23 @@ const CRM: React.FC = () => {
                   return (
                     <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={ticket.id} className="border-b border-[var(--color-text)]/20 hover:bg-[var(--color-text)]/[0.02] transition-colors">
                       <td className="py-4 pl-4">
-                        <div className="font-medium text-[var(--color-text)]">{cust?.name || 'Unknown'}</div>
+                        <div className="font-medium text-[var(--color-text)]">{cust?.name || t('Unknown')}</div>
                         <div className="text-xs text-[var(--color-text)]/40 uppercase tracking-widest mt-1">#{ticket.id.substring(0,8)}</div>
                       </td>
-                      <td className="py-4 capitalize text-[var(--color-text)]/60">{ticket.type.replace('_', ' ')}</td>
+                      <td className="py-4 capitalize text-[var(--color-text)]/60">{t(ticket.type.replace('_', ' '))}</td>
                       <td className="py-4">
-                        <Badge color={ticket.status === 'open' ? 'red' : ticket.status === 'in_progress' ? 'amber' : 'emerald'} label={ticket.status.replace('_', ' ')} />
+                        <Badge color={ticket.status === 'open' ? 'red' : ticket.status === 'in_progress' ? 'amber' : 'emerald'} label={t(ticket.status.replace('_', ' '))} />
                       </td>
                       <td className="py-4 pr-4 text-right">
-                        <button onClick={() => openEditTicket(ticket)} className="text-xs px-3 py-1.5 bg-[var(--color-text)]/5 text-[var(--color-text)] rounded-lg hover:bg-[var(--color-text)]/10 transition-colors mr-2">Edit</button>
+                        <button onClick={() => openEditTicket(ticket)} className="text-xs px-3 py-1.5 bg-[var(--color-text)]/5 text-[var(--color-text)] rounded-lg hover:bg-[var(--color-text)]/10 transition-colors mr-2">{t('Edit')}</button>
                         {ticket.status !== 'resolved' && ticket.status !== 'closed' && (
-                          <button onClick={() => updateTicket(ticket.id, { status: 'resolved' })} className="text-xs px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors">Resolve</button>
+                          <button onClick={() => updateTicket(ticket.id, { status: 'resolved' })} className="text-xs px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors">{t('Resolve')}</button>
                         )}
                       </td>
                     </motion.tr>
                   );
                 })}
-                {filteredTickets.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-[var(--color-text)]/40">No tickets found.</td></tr>}
+                {filteredTickets.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-[var(--color-text)]/40">{t('No tickets found.')}</td></tr>}
               </tbody>
             </table>
           )}
@@ -347,10 +349,10 @@ const CRM: React.FC = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[var(--color-text)]/40 border-b border-[var(--color-text)]/20">
-                  <th className="pb-4 font-medium pl-4">Date</th>
-                  <th className="pb-4 font-medium">Customer</th>
-                  <th className="pb-4 font-medium">Type</th>
-                  <th className="pb-4 font-medium w-1/2 pr-4">Notes</th>
+                  <th className="pb-4 font-medium pl-4">{t('Date')}</th>
+                  <th className="pb-4 font-medium">{t('Customer')}</th>
+                  <th className="pb-4 font-medium">{t('Type')}</th>
+                  <th className="pb-4 font-medium w-1/2 pr-4">{t('Notes')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -359,15 +361,15 @@ const CRM: React.FC = () => {
                   return (
                     <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} key={interaction.id} className="border-b border-[var(--color-text)]/20 hover:bg-[var(--color-text)]/[0.02] transition-colors">
                       <td className="py-4 pl-4 text-[var(--color-text)]/60">{new Date(interaction.interaction_date).toLocaleString()}</td>
-                      <td className="py-4 font-medium text-[var(--color-text)]">{cust?.name || 'Unknown'}</td>
+                      <td className="py-4 font-medium text-[var(--color-text)]">{cust?.name || t('Unknown')}</td>
                       <td className="py-4 capitalize text-[var(--color-text)]/60">
-                         <Badge color={interaction.interaction_type === 'sales' ? 'blue' : interaction.interaction_type === 'support' ? 'amber' : interaction.interaction_type === 'delivery' ? 'emerald' : 'gray'} label={interaction.interaction_type} />
+                         <Badge color={interaction.interaction_type === 'sales' ? 'blue' : interaction.interaction_type === 'support' ? 'amber' : interaction.interaction_type === 'delivery' ? 'emerald' : 'gray'} label={t(interaction.interaction_type)} />
                       </td>
                       <td className="py-4 pr-4 text-[var(--color-text)]/80">{interaction.notes}</td>
                     </motion.tr>
                   );
                 })}
-                {filteredInteractions.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-[var(--color-text)]/40">No interactions found.</td></tr>}
+                {filteredInteractions.length === 0 && <tr><td colSpan={4} className="py-12 text-center text-[var(--color-text)]/40">{t('No interactions found.')}</td></tr>}
               </tbody>
             </table>
           )}
@@ -377,7 +379,7 @@ const CRM: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Tickets by Status */}
                 <div className="bg-[var(--color-surface)] border border-[var(--color-text)]/20 rounded-3xl p-6">
-                  <h3 className="text-lg font-bold mb-6">Tickets by Status</h3>
+                  <h3 className="text-lg font-bold mb-6">{t('Tickets by Status')}</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <RechartsPieChart>
@@ -393,7 +395,7 @@ const CRM: React.FC = () => {
 
                 {/* Tickets by Type */}
                 <div className="bg-[var(--color-surface)] border border-[var(--color-text)]/20 rounded-3xl p-6">
-                  <h3 className="text-lg font-bold mb-6">Tickets by Type</h3>
+                  <h3 className="text-lg font-bold mb-6">{t('Tickets by Type')}</h3>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={ticketsByType}>
@@ -410,7 +412,7 @@ const CRM: React.FC = () => {
 
               {/* Interactions Timeline */}
               <div className="bg-[var(--color-surface)] border border-[var(--color-text)]/20 rounded-3xl p-6">
-                <h3 className="text-lg font-bold mb-6">Interactions (Last 30 Days)</h3>
+                <h3 className="text-lg font-bold mb-6">{t('Interactions (Last 30 Days)')}</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={interactionsByDate}>
@@ -438,7 +440,7 @@ const CRM: React.FC = () => {
               className="fixed inset-y-0 right-0 w-full md:w-[500px] bg-[var(--color-surface)] shadow-2xl z-50 border-l border-[var(--color-text)]/20 overflow-y-auto"
             >
               <div className="p-6 border-b border-[var(--color-text)]/20 flex justify-between items-center sticky top-0 bg-[var(--color-surface)]/80 backdrop-blur-xl z-10">
-                <h3 className="text-xl font-bold font-serif text-[var(--color-main)]">Customer Profile</h3>
+                <h3 className="text-xl font-bold font-serif text-[var(--color-main)]">{t('Customer Profile')}</h3>
                 <button onClick={() => setViewCustomer(null)} className="p-2 bg-[var(--color-text)]/5 rounded-full hover:bg-[var(--color-text)]/10"><XCircle size={20}/></button>
               </div>
               <div className="p-6 space-y-8">
@@ -453,7 +455,7 @@ const CRM: React.FC = () => {
                     {viewCustomer.email && <div className="flex items-center space-x-3 text-[var(--color-text)]/70"><Mail size={16} /><span>{viewCustomer.email}</span></div>}
                     {viewCustomer.address && <div className="flex items-center space-x-3 text-[var(--color-text)]/70"><MapPin size={16} /><span>{viewCustomer.address}</span></div>}
                     <div className="flex items-center space-x-3 text-[var(--color-text)]/40 text-sm mt-4 pt-4 border-t border-[var(--color-text)]/10">
-                      <span>Customer since {new Date(viewCustomer.created_at).toLocaleDateString()}</span>
+                      <span>{t('Customer since')} {new Date(viewCustomer.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
@@ -461,44 +463,44 @@ const CRM: React.FC = () => {
                 {/* History */}
                 <div>
                   <h4 className="font-bold text-lg mb-4 flex items-center justify-between">
-                    <span>Recent Interactions</span>
-                    <button onClick={() => { setInteractionForm(prev => ({...prev, customerId: viewCustomer.id})); setIsInteractionModalOpen(true); }} className="text-xs px-3 py-1 bg-[var(--color-main)]/10 text-[var(--color-main)] rounded-lg">Add Note</button>
+                    <span>{t('Recent Interactions')}</span>
+                    <button onClick={() => { setInteractionForm(prev => ({...prev, customerId: viewCustomer.id})); setIsInteractionModalOpen(true); }} className="text-xs px-3 py-1 bg-[var(--color-main)]/10 text-[var(--color-main)] rounded-lg">{t('Add Note')}</button>
                   </h4>
                   <div className="space-y-4">
                     {interactions.filter(i => i.customer_id === viewCustomer.id).slice(0, 5).map(i => (
                       <div key={i.id} className="p-4 rounded-2xl border border-[var(--color-text)]/20 bg-[var(--color-text)]/[0.01]">
                         <div className="flex justify-between items-center mb-2">
-                          <Badge color="blue" label={i.interaction_type} />
+                          <Badge color="blue" label={t(i.interaction_type)} />
                           <span className="text-xs text-[var(--color-text)]/40">{new Date(i.interaction_date).toLocaleDateString()}</span>
                         </div>
                         <p className="text-sm text-[var(--color-text)]/80">{i.notes}</p>
                       </div>
                     ))}
-                    {interactions.filter(i => i.customer_id === viewCustomer.id).length === 0 && <p className="text-sm text-[var(--color-text)]/40 italic">No interactions logged yet.</p>}
+                    {interactions.filter(i => i.customer_id === viewCustomer.id).length === 0 && <p className="text-sm text-[var(--color-text)]/40 italic">{t('No interactions logged yet.')}</p>}
                   </div>
                 </div>
 
                 {/* Tickets */}
                 <div>
                   <h4 className="font-bold text-lg mb-4 flex items-center justify-between">
-                    <span>Support Tickets</span>
-                    <button onClick={() => { setEditingTicket(null); setTicketForm({ customerId: viewCustomer.id, type: 'inquiry', status: 'open', resolutionNotes: '' }); setIsTicketModalOpen(true); }} className="text-xs px-3 py-1 bg-[var(--color-main)]/10 text-[var(--color-main)] rounded-lg">New Ticket</button>
+                    <span>{t('Support Tickets')}</span>
+                    <button onClick={() => { setEditingTicket(null); setTicketForm({ customerId: viewCustomer.id, type: 'inquiry', status: 'open', resolutionNotes: '' }); setIsTicketModalOpen(true); }} className="text-xs px-3 py-1 bg-[var(--color-main)]/10 text-[var(--color-main)] rounded-lg">{t('New Ticket')}</button>
                   </h4>
                   <div className="space-y-4">
                     {tickets.filter(t => t.customer_id === viewCustomer.id).map(t => (
                       <div key={t.id} className="p-4 rounded-2xl border border-[var(--color-text)]/20 bg-[var(--color-text)]/[0.01]">
                         <div className="flex justify-between items-center mb-2">
-                          <span className="font-bold capitalize">{t.type}</span>
-                          <Badge color={t.status === 'open' ? 'red' : t.status === 'in_progress' ? 'amber' : 'emerald'} label={t.status.replace('_', ' ')} />
+                          <span className="font-bold capitalize">{t(t.type)}</span>
+                          <Badge color={t.status === 'open' ? 'red' : t.status === 'in_progress' ? 'amber' : 'emerald'} label={t(t.status.replace('_', ' '))} />
                         </div>
                         <div className="text-xs text-[var(--color-text)]/40 uppercase tracking-widest mb-2">#{t.id.substring(0,8)}</div>
                         {t.resolution_notes && <p className="text-sm text-[var(--color-text)]/80 mt-2 p-3 bg-[var(--color-text)]/5 rounded-xl">{t.resolution_notes}</p>}
                         <div className="mt-3 flex justify-end">
-                           <button onClick={() => openEditTicket(t)} className="text-xs px-3 py-1 bg-[var(--color-text)]/5 hover:bg-[var(--color-text)]/10 rounded-lg transition-colors">Edit Ticket</button>
+                           <button onClick={() => openEditTicket(t)} className="text-xs px-3 py-1 bg-[var(--color-text)]/5 hover:bg-[var(--color-text)]/10 rounded-lg transition-colors">{t('Edit Ticket')}</button>
                         </div>
                       </div>
                     ))}
-                    {tickets.filter(t => t.customer_id === viewCustomer.id).length === 0 && <p className="text-sm text-[var(--color-text)]/40 italic">No support tickets found.</p>}
+                    {tickets.filter(t => t.customer_id === viewCustomer.id).length === 0 && <p className="text-sm text-[var(--color-text)]/40 italic">{t('No support tickets found.')}</p>}
                   </div>
                 </div>
               </div>
@@ -513,7 +515,7 @@ const CRM: React.FC = () => {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[var(--color-surface)] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[var(--color-text)]/20">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">{editingCustomer ? 'Edit Customer' : 'Add Customer'}</h3>
+                <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">{editingCustomer ? t('Edit Customer') : t('Add Customer')}</h3>
                 <button onClick={() => setIsCustomerModalOpen(false)} className="text-[var(--color-text)]/40 hover:text-[var(--color-text)]"><XCircle size={24} /></button>
               </div>
               {errorMsg && (
@@ -523,26 +525,26 @@ const CRM: React.FC = () => {
               )}
               <form onSubmit={handleCustomerSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Name</label>
+                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Name')}</label>
                   <input required type="text" value={customerForm.name} onChange={e => setCustomerForm({...customerForm, name: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Phone</label>
+                    <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Phone')}</label>
                     <input type="text" value={customerForm.phone} onChange={e => setCustomerForm({...customerForm, phone: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Email</label>
+                    <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Email')}</label>
                     <input type="email" value={customerForm.email} onChange={e => setCustomerForm({...customerForm, email: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Address</label>
+                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Address')}</label>
                   <input type="text" value={customerForm.address} onChange={e => setCustomerForm({...customerForm, address: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none" />
                 </div>
                 <div className="flex space-x-3 pt-4">
-                  <button type="button" onClick={() => setIsCustomerModalOpen(false)} className="flex-1 py-3 bg-[var(--color-text)]/5 text-[var(--color-text)] font-bold rounded-xl hover:bg-[var(--color-text)]/10 transition-colors">Cancel</button>
-                  <button type="submit" className="flex-1 py-3 bg-[var(--color-main)] text-white font-bold rounded-xl hover:bg-[var(--color-main)]/90 transition-colors shadow-lg shadow-[var(--color-main)]/20">{editingCustomer ? 'Update' : 'Save'}</button>
+                  <button type="button" onClick={() => setIsCustomerModalOpen(false)} className="flex-1 py-3 bg-[var(--color-text)]/5 text-[var(--color-text)] font-bold rounded-xl hover:bg-[var(--color-text)]/10 transition-colors">{t('Cancel')}</button>
+                  <button type="submit" className="flex-1 py-3 bg-[var(--color-main)] text-white font-bold rounded-xl hover:bg-[var(--color-main)]/90 transition-colors shadow-lg shadow-[var(--color-main)]/20">{editingCustomer ? t('Update') : t('Save')}</button>
                 </div>
               </form>
             </motion.div>
@@ -555,7 +557,7 @@ const CRM: React.FC = () => {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[var(--color-surface)] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[var(--color-text)]/20">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">{editingTicket ? 'Edit Ticket' : 'Create Ticket'}</h3>
+                <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">{editingTicket ? t('Edit Ticket') : t('Create Ticket')}</h3>
                 <button onClick={() => setIsTicketModalOpen(false)} className="text-[var(--color-text)]/40 hover:text-[var(--color-text)]"><XCircle size={24} /></button>
               </div>
               {errorMsg && (
@@ -565,38 +567,38 @@ const CRM: React.FC = () => {
               )}
               <form onSubmit={handleTicketSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Customer</label>
+                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Customer')}</label>
                   <select disabled={!!editingTicket} required value={ticketForm.customerId} onChange={e => setTicketForm({...ticketForm, customerId: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none disabled:opacity-50">
-                    <option value="">Select Customer...</option>
+                    <option value="">{t('Select Customer...')}</option>
                     {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Type</label>
+                    <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Type')}</label>
                     <select value={ticketForm.type} onChange={e => setTicketForm({...ticketForm, type: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none">
-                      <option value="inquiry">Inquiry</option>
-                      <option value="complaint">Complaint</option>
-                      <option value="feedback">Feedback</option>
+                      <option value="inquiry">{t('Inquiry')}</option>
+                      <option value="complaint">{t('Complaint')}</option>
+                      <option value="feedback">{t('Feedback')}</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Status</label>
+                    <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Status')}</label>
                     <select value={ticketForm.status} onChange={e => setTicketForm({...ticketForm, status: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none">
-                      <option value="open">Open</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="resolved">Resolved</option>
-                      <option value="closed">Closed</option>
+                      <option value="open">{t('Open')}</option>
+                      <option value="in_progress">{t('In Progress')}</option>
+                      <option value="resolved">{t('Resolved')}</option>
+                      <option value="closed">{t('Closed')}</option>
                     </select>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Notes & Resolution</label>
+                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Notes & Resolution')}</label>
                   <textarea rows={3} value={ticketForm.resolutionNotes} onChange={e => setTicketForm({...ticketForm, resolutionNotes: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none"></textarea>
                 </div>
                 <div className="flex space-x-3 pt-4">
-                  <button type="button" onClick={() => setIsTicketModalOpen(false)} className="flex-1 py-3 bg-[var(--color-text)]/5 text-[var(--color-text)] font-bold rounded-xl hover:bg-[var(--color-text)]/10 transition-colors">Cancel</button>
-                  <button type="submit" className="flex-1 py-3 bg-[var(--color-main)] text-white font-bold rounded-xl hover:bg-[var(--color-main)]/90 transition-colors shadow-lg shadow-[var(--color-main)]/20">{editingTicket ? 'Update' : 'Save'}</button>
+                  <button type="button" onClick={() => setIsTicketModalOpen(false)} className="flex-1 py-3 bg-[var(--color-text)]/5 text-[var(--color-text)] font-bold rounded-xl hover:bg-[var(--color-text)]/10 transition-colors">{t('Cancel')}</button>
+                  <button type="submit" className="flex-1 py-3 bg-[var(--color-main)] text-white font-bold rounded-xl hover:bg-[var(--color-main)]/90 transition-colors shadow-lg shadow-[var(--color-main)]/20">{editingTicket ? t('Update') : t('Save')}</button>
                 </div>
               </form>
             </motion.div>
@@ -609,7 +611,7 @@ const CRM: React.FC = () => {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-[var(--color-surface)] w-full max-w-md rounded-3xl p-6 shadow-2xl border border-[var(--color-text)]/20">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">Log Interaction</h3>
+                <h3 className="text-xl font-serif font-bold text-[var(--color-main)]">{t('Log Interaction')}</h3>
                 <button onClick={() => setIsInteractionModalOpen(false)} className="text-[var(--color-text)]/40 hover:text-[var(--color-text)]"><XCircle size={24} /></button>
               </div>
               {errorMsg && (
@@ -619,28 +621,28 @@ const CRM: React.FC = () => {
               )}
               <form onSubmit={handleInteractionSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Customer</label>
+                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Customer')}</label>
                   <select required disabled={!!viewCustomer && interactionForm.customerId === viewCustomer.id} value={interactionForm.customerId} onChange={e => setInteractionForm({...interactionForm, customerId: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none disabled:opacity-50">
-                    <option value="">Select Customer...</option>
+                    <option value="">{t('Select Customer...')}</option>
                     {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Interaction Type</label>
+                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Interaction Type')}</label>
                   <select value={interactionForm.interactionType} onChange={e => setInteractionForm({...interactionForm, interactionType: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none">
-                    <option value="general">General</option>
-                    <option value="sales">Sales</option>
-                    <option value="support">Support</option>
-                    <option value="delivery">Delivery</option>
+                    <option value="general">{t('General')}</option>
+                    <option value="sales">{t('Sales')}</option>
+                    <option value="support">{t('Support')}</option>
+                    <option value="delivery">{t('Delivery')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">Notes</label>
+                  <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Notes')}</label>
                   <textarea required rows={4} value={interactionForm.notes} onChange={e => setInteractionForm({...interactionForm, notes: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none"></textarea>
                 </div>
                 <div className="flex space-x-3 pt-4">
-                  <button type="button" onClick={() => setIsInteractionModalOpen(false)} className="flex-1 py-3 bg-[var(--color-text)]/5 text-[var(--color-text)] font-bold rounded-xl hover:bg-[var(--color-text)]/10 transition-colors">Cancel</button>
-                  <button type="submit" className="flex-1 py-3 bg-[var(--color-main)] text-white font-bold rounded-xl hover:bg-[var(--color-main)]/90 transition-colors shadow-lg shadow-[var(--color-main)]/20">Save</button>
+                  <button type="button" onClick={() => setIsInteractionModalOpen(false)} className="flex-1 py-3 bg-[var(--color-text)]/5 text-[var(--color-text)] font-bold rounded-xl hover:bg-[var(--color-text)]/10 transition-colors">{t('Cancel')}</button>
+                  <button type="submit" className="flex-1 py-3 bg-[var(--color-main)] text-white font-bold rounded-xl hover:bg-[var(--color-main)]/90 transition-colors shadow-lg shadow-[var(--color-main)]/20">{t('Save')}</button>
                 </div>
               </form>
             </motion.div>

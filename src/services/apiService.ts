@@ -12,19 +12,26 @@ class ApiService {
     return process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') || 'http://localhost:4000/api';
   }
 
-  private async getHeaders() {
-    const token = await auth.currentUser?.getIdToken();
+  private async getHeaders(forceRefresh = false) {
+    let token = await auth.currentUser?.getIdToken(forceRefresh);
     return {
       'Content-Type': 'application/json',
       Authorization: token ? `Bearer ${token}` : '',
     };
   }
 
-  private async handleFetch(url: string, options: RequestInit) {
+  private async handleFetch(url: string, options: RequestInit, retryCount = 0): Promise<any> {
     console.log(`Fetching: ${url}`, options);
     try {
       const response = await fetch(url, options);
       console.log(`Response status for ${url}:`, response.status);
+      
+      if (response.status === 401 && retryCount < 1) {
+        console.warn('Received 401, forcing token refresh and retrying...');
+        const headers = await this.getHeaders(true);
+        return this.handleFetch(url, { ...options, headers }, retryCount + 1);
+      }
+
       if (!response.ok) {
         const text = await response.text();
         let errorMsg = `Failed with status ${response.status}: ${text}`;
@@ -81,16 +88,7 @@ class ApiService {
     const headers = await this.getHeaders();
     const url = `${this.getBaseUrl()}/${collectionName}?companyId=${companyId}`;
     try {
-      const response = await fetch(url, {
-        headers,
-      });
-      console.log(`fetchCollection [${collectionName}] response:`, response.status);
-      if (!response.ok) {
-        const errText = await response.text();
-        console.error(`fetchCollection failed for ${url}:`, response.status, errText);
-        return [];
-      }
-      return await response.json();
+      return await this.handleFetch(url, { headers });
     } catch (error) {
       console.error(`fetchCollection error for ${url}:`, error);
       return [];

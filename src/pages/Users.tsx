@@ -106,8 +106,8 @@ const Users: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center h-[70vh] text-[var(--color-text)]/40">
         <Shield size={64} className="mb-6 opacity-20" />
-        <h2 className="text-2xl font-serif font-bold text-[var(--color-text)]">Access Denied</h2>
-        <p className="text-sm mt-2">You do not have administrative privileges to view this page.</p>
+        <h2 className="text-2xl font-serif font-bold text-[var(--color-text)]">{t('Access Denied')}</h2>
+        <p className="text-sm mt-2">{t('You do not have administrative privileges to view this page.')}</p>
       </div>
     );
   }
@@ -128,8 +128,8 @@ const Users: React.FC = () => {
     >
       <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
         <div>
-          <h2 className="text-4xl font-serif font-bold text-[var(--color-main)]">User Management</h2>
-          <p className="text-[var(--color-text)]/40 mt-1">Control system access, assign roles, and manage identity profiles.</p>
+          <h2 className="text-4xl font-serif font-bold text-[var(--color-main)]">{t('User Management')}</h2>
+          <p className="text-[var(--color-text)]/40 mt-1">{t('Control system access, assign roles, and manage identity profiles.')}</p>
         </div>
       </header>
 
@@ -158,19 +158,19 @@ const Users: React.FC = () => {
       {/* Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatsCard 
-          title="Total Users"
+          title={t('Total Users')}
           value={users.length}
           icon={UsersIcon}
           color="indigo"
         />
         <StatsCard 
-          title="Active Admins"
+          title={t('Active Admins')}
           value={activeAdmins}
           icon={Shield}
           color="emerald"
         />
         <StatsCard 
-          title="Roles Assigned"
+          title={t('Roles Assigned')}
           value={uniqueRoles}
           icon={Key}
           color="amber"
@@ -182,13 +182,13 @@ const Users: React.FC = () => {
         <div className="p-6 border-b border-[var(--color-text)]/20 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[var(--color-bg)]/20">
           <h3 className="font-serif font-bold text-lg text-[var(--color-text)] flex items-center gap-2">
             <UsersIcon size={20} className="text-[var(--color-main)]" />
-            System Directory
+            {t('System Directory')}
           </h3>
           <div className="relative w-full md:w-80">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text)]/30" size={18} />
             <input 
               type="text"
-              placeholder="Search by name or email..."
+              placeholder={t('Search by name or email...')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-11 pr-4 py-3 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/10 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 focus:border-[var(--color-main)] text-sm text-[var(--color-text)] transition-all shadow-sm"
@@ -200,17 +200,17 @@ const Users: React.FC = () => {
           {filteredUsers.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-20 text-[var(--color-text)]/30">
               <Search size={48} className="mb-4 opacity-20" />
-              <p className="text-lg font-serif font-bold">No Users Found</p>
-              <p className="text-sm mt-1">Try adjusting your search criteria.</p>
+              <p className="text-lg font-serif font-bold">{t('No Users Found')}</p>
+              <p className="text-sm mt-1">{t('Try adjusting your search criteria.')}</p>
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[var(--color-bg)]/80 text-[10px] font-bold text-[var(--color-text)]/40 uppercase tracking-widest border-b border-[var(--color-text)]/20">
-                  <th className="px-6 py-5">User Identity</th>
-                  <th className="px-6 py-5">Status</th>
-                  <th className="px-6 py-5">System Roles</th>
-                  <th className="px-6 py-5 text-right">Actions</th>
+                  <th className="px-6 py-5">{t('User Identity')}</th>
+                  <th className="px-6 py-5">{t('Status')}</th>
+                  <th className="px-6 py-5">{t('System Roles')}</th>
+                  <th className="px-6 py-5 text-right">{t('Actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-text)]/5 text-sm">
@@ -241,11 +241,11 @@ const Users: React.FC = () => {
                       <td className="px-6 py-5">
                         {user.status === 'inactive' ? (
                           <span className="px-2.5 py-1 text-[10px] font-bold uppercase rounded-md tracking-wider bg-gray-100 text-gray-500 border border-gray-200">
-                            Inactive
+                            {t('Inactive')}
                           </span>
                         ) : (
                           <span className="px-2.5 py-1 text-[10px] font-bold uppercase rounded-md tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-100">
-                            Active
+                            {t('Active')}
                           </span>
                         )}
                       </td>
@@ -257,10 +257,10 @@ const Users: React.FC = () => {
                                 ? 'bg-rose-50 text-rose-600 border-rose-100' 
                                 : 'bg-[var(--color-main)]/10 text-[var(--color-main)] border-[var(--color-main)]/20'
                             }`}>
-                              {role.replace('_', ' ')}
+                              {t(role.replace('_', ' '))}
                             </span>
                           )) : (
-                            <span className="text-xs text-[var(--color-text)]/30 italic">No roles assigned</span>
+                            <span className="text-xs text-[var(--color-text)]/30 italic">{t('No roles assigned')}</span>
                           )}
                         </div>
                       </td>
@@ -279,7 +279,7 @@ const Users: React.FC = () => {
                           <button
                             onClick={() => handleDeleteUser(user)}
                             className="p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
-                            title="Delete User"
+                            title={t('Delete User')}
                           >
                             <Trash2 size={16} />
                           </button>
@@ -298,13 +298,13 @@ const Users: React.FC = () => {
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        title="Edit User Identity"
+        title={t('Edit User Identity')}
       >
         {selectedUser && (
           <form onSubmit={handleUpdateUser} className="space-y-8">
             <div className="space-y-5">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">Full Name</label>
+                <label className="text-[10px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">{t('Full Name')}</label>
                 <input
                   type="text"
                   required
@@ -314,7 +314,7 @@ const Users: React.FC = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">Email Address</label>
+                <label className="text-[10px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">{t('Email Address')}</label>
                 <input
                   type="email"
                   required
@@ -326,7 +326,7 @@ const Users: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">Account Status</label>
+              <label className="text-[10px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">{t('Account Status')}</label>
               <div className="flex gap-4">
                 <button
                   type="button"
@@ -337,7 +337,7 @@ const Users: React.FC = () => {
                       : 'bg-[var(--color-surface)] text-[var(--color-text)]/40 border-[var(--color-text)]/20 hover:bg-[var(--color-bg)]'
                   }`}
                 >
-                  Active
+                  {t('Active')}
                 </button>
                 <button
                   type="button"
@@ -348,13 +348,13 @@ const Users: React.FC = () => {
                       : 'bg-[var(--color-surface)] text-[var(--color-text)]/40 border-[var(--color-text)]/20 hover:bg-[var(--color-bg)]'
                   }`}
                 >
-                  Inactive
+                  {t('Inactive')}
                 </button>
               </div>
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">System Roles</label>
+              <label className="text-[10px] font-bold text-[var(--color-text)]/50 uppercase tracking-widest pl-1">{t('System Roles')}</label>
               <RoleDropdown 
                 selectedRoles={selectedUser.roles || []} 
                 toggleRole={toggleRole} 

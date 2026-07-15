@@ -92,6 +92,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         { name: t('Procurement'), path: '/procurement', icon: ShoppingCart, module: 'procurement' },
         { name: t('Inventory'), path: '/inventory', icon: Warehouse, module: 'inventory' },
         { name: t('Production'), path: '/production', icon: Factory, module: 'production' },
+        { name: t('Factory Floor'), path: '/factory-floor', icon: Factory, module: 'production' },
+        { name: t('Workflow Templates'), path: '/workflow-templates', icon: Database, module: 'production' },
         { name: t('Recipes'), path: '/recipes', icon: BookOpen, module: 'recipes' },
         { name: t('Maintenance'), path: '/maintenance', icon: Wrench, module: 'maintenance' },
         { name: t('Logistics'), path: '/logistics', icon: Truck, module: 'logistics' },

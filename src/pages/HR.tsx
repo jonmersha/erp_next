@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { useHRData } from '../hooks/useHRData';
 import { createEmployee, updateEmployee, createDepartment, updateDepartment, deleteDepartment, logAttendance, applyLeave, updateLeaveStatus } from '../services/hrService';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { Users, UserPlus, Search, Briefcase, Mail, DollarSign, Loader2, XCircle, Edit2, Network, FolderTree, Plus, ZoomIn, ZoomOut, Maximize, LayoutGrid, List, Clock, CalendarRange, Check, X } from 'lucide-react';
 import Modal from '../components/Modal';
@@ -21,8 +22,8 @@ const EmployeeTableRow = ({ emp, setEditingEmployee, setForm, setIsModalOpen }: 
       </div>
     </td>
     <td className="p-4 font-medium">{emp.role || '-'}</td>
-    <td className="p-4 text-[var(--color-text)]/80">{emp.departmentName || <span className="opacity-40 italic">None</span>}</td>
-    <td className="p-4 text-[var(--color-text)]/80">{emp.managerName || <span className="opacity-40 italic">None</span>}</td>
+    <td className="p-4 text-[var(--color-text)]/80">{emp.departmentName || <span className="opacity-40 italic">{emp.t?.('None') || 'None'}</span>}</td>
+    <td className="p-4 text-[var(--color-text)]/80">{emp.managerName || <span className="opacity-40 italic">{emp.t?.('None') || 'None'}</span>}</td>
     <td className="p-4 text-[var(--color-text)]/80">{emp.hireDate ? new Date(emp.hireDate).toLocaleDateString() : '-'}</td>
     <td className="p-4 font-semibold text-[var(--color-main)]">${Number(emp.salary || 0).toLocaleString()}</td>
     <td className="p-4 text-right">
@@ -45,6 +46,7 @@ const EmployeeTableRow = ({ emp, setEditingEmployee, setForm, setIsModalOpen }: 
 );
 
 const HR: React.FC = () => {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { employees, factories, departments, attendance, leaves, loading } = useHRData();
   const [activeTab, setActiveTab] = useState<'directory' | 'departments' | 'orgChart' | 'attendance' | 'leaves'>('directory');
@@ -107,7 +109,8 @@ const HR: React.FC = () => {
     date: new Date().toISOString().split('T')[0],
     clock_in: '',
     clock_out: '',
-    status: 'present'
+    status: 'present',
+    overtime_hours: 0
   });
 
   // Leave State
@@ -133,7 +136,7 @@ const HR: React.FC = () => {
       setIsModalOpen(false);
       window.location.reload();
     } catch (err: any) {
-      setError(err.message || "Failed to save employee");
+      setError(err.message || t("Failed to save employee"));
     } finally {
       setSubmitting(false);
     }
@@ -152,7 +155,7 @@ const HR: React.FC = () => {
       setIsDeptModalOpen(false);
       window.location.reload();
     } catch (err: any) {
-      setError(err.message || "Failed to save department");
+      setError(err.message || t("Failed to save department"));
     } finally {
       setSubmitting(false);
     }
@@ -167,7 +170,7 @@ const HR: React.FC = () => {
       setIsAttendanceModalOpen(false);
       window.location.reload();
     } catch (err: any) {
-      setError(err.message || "Failed to log attendance");
+      setError(err.message || t("Failed to log attendance"));
     } finally {
       setSubmitting(false);
     }
@@ -182,7 +185,7 @@ const HR: React.FC = () => {
       setIsLeaveModalOpen(false);
       window.location.reload();
     } catch (err: any) {
-      setError(err.message || "Failed to submit leave request");
+      setError(err.message || t("Failed to submit leave request"));
     } finally {
       setSubmitting(false);
     }
@@ -193,7 +196,7 @@ const HR: React.FC = () => {
       await updateLeaveStatus(id, status);
       window.location.reload();
     } catch (err: any) {
-      setError(err.message || "Failed to update leave status");
+      setError(err.message || t("Failed to update leave status"));
     }
   };
 
@@ -219,13 +222,13 @@ const HR: React.FC = () => {
                 {dept.name}
               </h4>
               <p className="text-[11px] text-blue-700 mt-1.5 font-bold uppercase tracking-wider">
-                {dept.managerName || 'Unassigned'}
+                {dept.managerName || t('Unassigned')}
               </p>
               
               {/* Quick Actions (visible on hover) */}
               <div className="absolute -right-4 -top-4 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col space-y-1 bg-white p-1 rounded-xl shadow-lg border border-gray-200 z-20">
                 <button 
-                  title="Add Sub-Department"
+                  title={t("Add Sub-Department")}
                   onClick={() => {
                     setError(null);
                     setEditingDept(null);
@@ -237,7 +240,7 @@ const HR: React.FC = () => {
                   <Plus size={14} />
                 </button>
                 <button 
-                  title="Add Employee to Department"
+                  title={t("Add Employee to Department")}
                   onClick={() => {
                     setError(null);
                     setEditingEmployee(null);
@@ -252,7 +255,7 @@ const HR: React.FC = () => {
                   <UserPlus size={14} />
                 </button>
                 <button 
-                  title="Edit Department"
+                  title={t("Edit Department")}
                   onClick={() => {
                     setError(null);
                     setEditingDept(dept.id!);
@@ -334,8 +337,8 @@ const HR: React.FC = () => {
       `}</style>
       <header className="flex justify-between items-end">
         <div>
-          <h2 className="text-4xl font-serif font-bold text-[var(--color-main)]">Human Resources</h2>
-          <p className="text-[var(--color-text)]/40 mt-1">Manage workforce and organizational structure</p>
+          <h2 className="text-4xl font-serif font-bold text-[var(--color-main)]">{t('Human Resources')}</h2>
+          <p className="text-[var(--color-text)]/40 mt-1">{t('Manage workforce and organizational structure')}</p>
         </div>
         <div className="flex space-x-4">
           {activeTab === 'departments' ? (
@@ -349,7 +352,7 @@ const HR: React.FC = () => {
               className="flex items-center space-x-2 bg-[var(--color-main)] text-white px-6 py-3 rounded-2xl shadow-lg hover:bg-[var(--color-main)]/90 transition-all"
             >
               <Briefcase size={20} />
-              <span className="font-bold">Add Department</span>
+              <span className="font-bold">{t('Add Department')}</span>
             </button>
           ) : (
             <button 
@@ -365,7 +368,7 @@ const HR: React.FC = () => {
               className="flex items-center space-x-2 bg-[var(--color-main)] text-white px-6 py-3 rounded-2xl shadow-lg hover:bg-[var(--color-main)]/90 transition-all"
             >
               <UserPlus size={20} />
-              <span className="font-bold">Add Employee</span>
+              <span className="font-bold">{t('Add Employee')}</span>
             </button>
           )}
         </div>
@@ -379,9 +382,9 @@ const HR: React.FC = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatsCard title="Total Workforce" value={employees.length} icon={Users} color="indigo" />
-        <StatsCard title="Departments" value={departments.length} icon={Briefcase} color="emerald" />
-        <StatsCard title="Monthly Payroll" value={`$${totalPayroll.toLocaleString()}`} icon={DollarSign} color="amber" />
+        <StatsCard title={t('Total Workforce')} value={employees.length} icon={Users} color="indigo" />
+        <StatsCard title={t('Departments')} value={departments.length} icon={Briefcase} color="emerald" />
+        <StatsCard title={t('Monthly Payroll')} value={`$${totalPayroll.toLocaleString()}`} icon={DollarSign} color="amber" />
       </div>
 
       <div className="flex space-x-2 border-b border-[var(--color-text)]/10 pb-4 overflow-x-auto">
@@ -389,50 +392,50 @@ const HR: React.FC = () => {
           onClick={() => setActiveTab('directory')}
           className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'directory' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
         >
-          <Users size={16} className="mr-2" /> Directory
+          <Users size={16} className="mr-2" /> {t('Directory')}
         </button>
         <button 
           onClick={() => setActiveTab('departments')}
           className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'departments' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
         >
-          <Briefcase size={16} className="mr-2" /> Departments
+          <Briefcase size={16} className="mr-2" /> {t('Departments')}
         </button>
         <button 
           onClick={() => setActiveTab('attendance')}
           className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'attendance' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
         >
-          <Clock size={16} className="mr-2" /> Attendance
+          <Clock size={16} className="mr-2" /> {t('Attendance')}
         </button>
         <button 
           onClick={() => setActiveTab('leaves')}
           className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'leaves' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
         >
-          <CalendarRange size={16} className="mr-2" /> Leaves
+          <CalendarRange size={16} className="mr-2" /> {t('Leaves')}
         </button>
         <button 
           onClick={() => setActiveTab('orgChart')}
           className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all flex items-center ${activeTab === 'orgChart' ? 'bg-[var(--color-main)] text-white' : 'text-[var(--color-text)]/60 hover:bg-[var(--color-main)]/10'}`}
         >
-          <Network size={16} className="mr-2" /> Org Chart
+          <Network size={16} className="mr-2" /> {t('Org Chart')}
         </button>
       </div>
 
       {activeTab === 'directory' && (
         <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
           <div className="p-6 border-b border-[var(--color-text)]/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Employee Directory</h3>
+            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">{t('Employee Directory')}</h3>
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto">
               {directoryView === 'table' && (
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Group By:</span>
+                  <span className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Group By:')}</span>
                   <select 
                     value={groupBy} 
                     onChange={(e) => setGroupBy(e.target.value as any)}
                     className="p-1.5 text-sm bg-[var(--color-bg)] rounded-lg border border-[var(--color-text)]/20 focus:outline-none focus:ring-1 focus:ring-[var(--color-main)]/30 text-[var(--color-text)]"
                   >
-                    <option value="none">None</option>
-                    <option value="department">Department</option>
-                    <option value="role">Role</option>
+                    <option value="none">{t('None')}</option>
+                    <option value="department">{t('Department')}</option>
+                    <option value="role">{t('Role')}</option>
                   </select>
                 </div>
               )}
@@ -440,14 +443,14 @@ const HR: React.FC = () => {
                 <button 
                   onClick={() => setDirectoryView('cards')}
                   className={`p-1.5 rounded-md transition-colors ${directoryView === 'cards' ? 'bg-white shadow text-[var(--color-main)]' : 'text-[var(--color-text)]/40 hover:text-[var(--color-text)]/80'}`}
-                  title="Card View"
+                  title={t('Card View')}
                 >
                   <LayoutGrid size={16} />
                 </button>
                 <button 
                   onClick={() => setDirectoryView('table')}
                   className={`p-1.5 rounded-md transition-colors ${directoryView === 'table' ? 'bg-white shadow text-[var(--color-main)]' : 'text-[var(--color-text)]/40 hover:text-[var(--color-text)]/80'}`}
-                  title="Table View"
+                  title={t('Table View')}
                 >
                   <List size={16} />
                 </button>
@@ -456,7 +459,7 @@ const HR: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text)]/20" size={18} />
                 <input 
                   type="text"
-                  placeholder="Search employees..."
+                  placeholder={t('Search employees...')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-sm text-[var(--color-text)]"
@@ -489,16 +492,16 @@ const HR: React.FC = () => {
                         <Edit2 size={14} />
                       </button>
                       <div className="text-right">
-                        <p className="text-[10px] font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{emp.departmentName || 'No Department'}</p>
-                        <p className="font-bold text-[var(--color-text)]">{emp.role || 'N/A'}</p>
+                        <p className="text-[10px] font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{emp.departmentName || t('No Department')}</p>
+                        <p className="font-bold text-[var(--color-text)]">{emp.role || t('N/A')}</p>
                       </div>
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-serif font-bold text-lg text-[var(--color-text)]">{emp.name || 'Unknown'}</h4>
+                    <h4 className="font-serif font-bold text-lg text-[var(--color-text)]">{emp.name || t('Unknown')}</h4>
                     <div className="flex flex-col text-xs text-[var(--color-text)]/60 mt-1 space-y-1">
-                      <span className="flex items-center"><Mail size={12} className="mr-1" /> {emp.email || 'No email'}</span>
-                      <span className="flex items-center text-[var(--color-main)]"><Network size={12} className="mr-1" /> Reports to: <strong className="ml-1 text-[var(--color-text)]">{emp.managerName || 'None'}</strong></span>
+                      <span className="flex items-center"><Mail size={12} className="mr-1" /> {emp.email || t('No email')}</span>
+                      <span className="flex items-center text-[var(--color-main)]"><Network size={12} className="mr-1" /> {t('Reports to:')} <strong className="ml-1 text-[var(--color-text)]">{emp.managerName || t('None')}</strong></span>
                     </div>
                   </div>
                   <div className="pt-4 border-t border-[var(--color-text)]/20 flex justify-between items-center">
@@ -506,7 +509,7 @@ const HR: React.FC = () => {
                       <DollarSign size={14} className="mr-0.5" />{Number(emp.salary || 0).toLocaleString()}
                     </div>
                     <div className="text-[10px] text-[var(--color-text)]/40">
-                      Hired: {emp.hireDate ? new Date(emp.hireDate).toLocaleDateString() : 'N/A'}
+                      {t('Hired:')} {emp.hireDate ? new Date(emp.hireDate).toLocaleDateString() : t('N/A')}
                     </div>
                   </div>
                 </motion.div>
@@ -517,13 +520,13 @@ const HR: React.FC = () => {
               <table className="w-full text-left text-sm text-[var(--color-text)]">
                 <thead className="bg-[var(--color-bg)]/50 border-b border-[var(--color-text)]/20">
                   <tr>
-                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Employee</th>
-                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Role</th>
-                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Department</th>
-                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Reports To</th>
-                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Hire Date</th>
-                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Salary</th>
-                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60 text-right">Actions</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Employee')}</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Role')}</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Department')}</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Reports To')}</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Hire Date')}</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Salary')}</th>
+                    <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60 text-right">{t('Actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--color-text)]/10">
@@ -536,7 +539,7 @@ const HR: React.FC = () => {
                     
                     const grouped: Record<string, typeof employees> = {};
                     filteredEmployees.forEach(emp => {
-                      const key = groupBy === 'department' ? (emp.departmentName || 'No Department') : (emp.role || 'No Role');
+                      const key = groupBy === 'department' ? (emp.departmentName || t('No Department')) : (emp.role || t('No Role'));
                       if (!grouped[key]) grouped[key] = [];
                       grouped[key].push(emp);
                     });
@@ -557,7 +560,7 @@ const HR: React.FC = () => {
                   
                   {filteredEmployees.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="p-8 text-center text-[var(--color-text)]/40">No employees found.</td>
+                      <td colSpan={7} className="p-8 text-center text-[var(--color-text)]/40">{t('No employees found.')}</td>
                     </tr>
                   )}
                 </tbody>
@@ -572,12 +575,12 @@ const HR: React.FC = () => {
           <table className="w-full text-left text-sm text-[var(--color-text)]">
             <thead className="bg-[var(--color-bg)]/50 border-b border-[var(--color-text)]/20">
               <tr>
-                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60">Department Name</th>
-                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60">Description</th>
-                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60">Department Head</th>
-                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60">Parent Department</th>
-                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60">Members</th>
-                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60 text-right">Actions</th>
+                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60">{t('Department Name')}</th>
+                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60">{t('Description')}</th>
+                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60">{t('Department Head')}</th>
+                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60">{t('Parent Department')}</th>
+                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60">{t('Members')}</th>
+                <th className="p-6 font-bold uppercase tracking-wider text-xs opacity-60 text-right">{t('Actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-text)]/10">
@@ -585,8 +588,8 @@ const HR: React.FC = () => {
                 <tr key={dept.id} className="hover:bg-[var(--color-text)]/[0.02] transition-colors">
                   <td className="p-6 font-semibold text-[var(--color-main)]">{dept.name}</td>
                   <td className="p-6 text-[var(--color-text)]/80 max-w-xs truncate">{dept.description || '-'}</td>
-                  <td className="p-6 font-medium">{dept.managerName || <span className="opacity-40 italic">Unassigned</span>}</td>
-                  <td className="p-6 text-[var(--color-text)]/80">{dept.parentDepartmentName || <span className="opacity-40 italic">Root</span>}</td>
+                  <td className="p-6 font-medium">{dept.managerName || <span className="opacity-40 italic">{t('Unassigned')}</span>}</td>
+                  <td className="p-6 text-[var(--color-text)]/80">{dept.parentDepartmentName || <span className="opacity-40 italic">{t('Root')}</span>}</td>
                   <td className="p-6">
                     <span className="bg-[var(--color-main)]/10 text-[var(--color-main)] px-3 py-1 rounded-full font-bold text-xs">
                       {employees.filter(e => e.departmentId === dept.id).length}
@@ -608,7 +611,7 @@ const HR: React.FC = () => {
               ))}
               {departments.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-[var(--color-text)]/40">No departments found.</td>
+                  <td colSpan={6} className="p-8 text-center text-[var(--color-text)]/40">{t('No departments found.')}</td>
                 </tr>
               )}
             </tbody>
@@ -619,27 +622,37 @@ const HR: React.FC = () => {
       {activeTab === 'attendance' && (
         <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
           <div className="p-6 border-b border-[var(--color-text)]/20 flex justify-between items-center">
-            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Attendance Log</h3>
+            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">{t('Attendance Log')}</h3>
             <button 
               onClick={() => {
                 setError(null);
-                setAttendanceForm({ employee_id: '', date: new Date().toISOString().split('T')[0], clock_in: '', clock_out: '', status: 'present' });
+                const dateStr = new Date().toISOString().split('T')[0];
+                const d = new Date(dateStr + 'T12:00:00Z');
+                let clockIn = '';
+                let clockOut = '';
+                if (d.getDay() !== 0) { // Not Sunday
+                  clockIn = `${dateStr}T08:00`;
+                  clockOut = `${dateStr}T17:00`;
+                }
+
+                setAttendanceForm({ employee_id: '', date: dateStr, clock_in: clockIn, clock_out: clockOut, status: 'present', overtime_hours: 0 });
                 setIsAttendanceModalOpen(true);
               }}
               className="px-4 py-2 bg-[var(--color-main)]/10 text-[var(--color-main)] font-bold rounded-xl hover:bg-[var(--color-main)]/20 transition-colors flex items-center"
             >
-              <Clock size={16} className="mr-2" /> Log Attendance
+              <Clock size={16} className="mr-2" /> {t('Log Attendance')}
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-[var(--color-text)]">
               <thead className="bg-[var(--color-bg)]/50 border-b border-[var(--color-text)]/20">
                 <tr>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Date</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Employee</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Clock In</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Clock Out</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Status</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Date')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Employee')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Clock In')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Clock Out')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Overtime')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Status')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-text)]/10">
@@ -652,6 +665,7 @@ const HR: React.FC = () => {
                     </td>
                     <td className="p-4">{record.clock_in ? new Date(record.clock_in).toLocaleTimeString() : '-'}</td>
                     <td className="p-4">{record.clock_out ? new Date(record.clock_out).toLocaleTimeString() : '-'}</td>
+                    <td className="p-4">{record.overtime_hours > 0 ? `${record.overtime_hours} ${t('hrs')}` : '-'}</td>
                     <td className="p-4">
                       <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                         record.status === 'present' ? 'bg-emerald-100 text-emerald-700' :
@@ -659,14 +673,14 @@ const HR: React.FC = () => {
                         record.status === 'late' ? 'bg-amber-100 text-amber-700' :
                         'bg-blue-100 text-blue-700'
                       }`}>
-                        {record.status}
+                        {t(record.status)}
                       </span>
                     </td>
                   </tr>
                 ))}
                 {attendance.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-[var(--color-text)]/40">No attendance records found.</td>
+                    <td colSpan={5} className="p-8 text-center text-[var(--color-text)]/40">{t('No attendance records found.')}</td>
                   </tr>
                 )}
               </tbody>
@@ -678,7 +692,7 @@ const HR: React.FC = () => {
       {activeTab === 'leaves' && (
         <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
           <div className="p-6 border-b border-[var(--color-text)]/20 flex justify-between items-center">
-            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Leave Requests</h3>
+            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">{t('Leave Requests')}</h3>
             <button 
               onClick={() => {
                 setError(null);
@@ -687,19 +701,19 @@ const HR: React.FC = () => {
               }}
               className="px-4 py-2 bg-[var(--color-main)]/10 text-[var(--color-main)] font-bold rounded-xl hover:bg-[var(--color-main)]/20 transition-colors flex items-center"
             >
-              <CalendarRange size={16} className="mr-2" /> Apply Leave
+              <CalendarRange size={16} className="mr-2" /> {t('Apply Leave')}
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-[var(--color-text)]">
               <thead className="bg-[var(--color-bg)]/50 border-b border-[var(--color-text)]/20">
                 <tr>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Employee</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Leave Type</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Dates</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Reason</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">Status</th>
-                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60 text-right">Actions</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Employee')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Leave Type')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Dates')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Reason')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60">{t('Status')}</th>
+                  <th className="p-4 font-bold uppercase tracking-wider text-xs opacity-60 text-right">{t('Actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-text)]/10">
@@ -709,7 +723,7 @@ const HR: React.FC = () => {
                       <p className="font-bold text-[var(--color-main)]">{leave.employeeName}</p>
                       <p className="text-xs text-[var(--color-text)]/60">{leave.employeeRole}</p>
                     </td>
-                    <td className="p-4 font-medium capitalize">{leave.type.replace('_', ' ')}</td>
+                    <td className="p-4 font-medium capitalize">{t(leave.type.replace('_', ' '))}</td>
                     <td className="p-4">
                       {new Date(leave.start_date).toLocaleDateString()} - {new Date(leave.end_date).toLocaleDateString()}
                     </td>
@@ -720,17 +734,17 @@ const HR: React.FC = () => {
                         leave.status === 'rejected' ? 'bg-rose-100 text-rose-700' :
                         'bg-amber-100 text-amber-700'
                       }`}>
-                        {leave.status}
+                        {t(leave.status)}
                       </span>
-                      {leave.status !== 'pending' && <p className="text-[10px] mt-1 text-[var(--color-text)]/40">by {leave.approverName}</p>}
+                      {leave.status !== 'pending' && <p className="text-[10px] mt-1 text-[var(--color-text)]/40">{t('by ')}{leave.approverName}</p>}
                     </td>
                     <td className="p-4 text-right space-x-2">
                       {leave.status === 'pending' && (
                         <>
-                          <button onClick={() => handleLeaveStatus(leave.id, 'approved')} className="p-1.5 text-emerald-600 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors inline-block" title="Approve">
+                          <button onClick={() => handleLeaveStatus(leave.id, 'approved')} className="p-1.5 text-emerald-600 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors inline-block" title={t("Approve")}>
                             <Check size={16} />
                           </button>
-                          <button onClick={() => handleLeaveStatus(leave.id, 'rejected')} className="p-1.5 text-rose-600 bg-rose-100 hover:bg-rose-200 rounded-lg transition-colors inline-block" title="Reject">
+                          <button onClick={() => handleLeaveStatus(leave.id, 'rejected')} className="p-1.5 text-rose-600 bg-rose-100 hover:bg-rose-200 rounded-lg transition-colors inline-block" title={t("Reject")}>
                             <X size={16} />
                           </button>
                         </>
@@ -740,7 +754,7 @@ const HR: React.FC = () => {
                 ))}
                 {leaves.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="p-8 text-center text-[var(--color-text)]/40">No leave requests found.</td>
+                    <td colSpan={6} className="p-8 text-center text-[var(--color-text)]/40">{t('No leave requests found.')}</td>
                   </tr>
                 )}
               </tbody>
@@ -752,12 +766,12 @@ const HR: React.FC = () => {
       {activeTab === 'orgChart' && (
         <div ref={orgContainerRef} className="bg-[var(--color-surface)] p-8 rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden relative">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">Company Hierarchy</h3>
+            <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">{t('Company Hierarchy')}</h3>
             <div className="flex space-x-2 bg-gray-100 p-1 rounded-lg border border-gray-200">
-              <button onClick={() => setScale(s => Math.max(0.2, s - 0.1))} className="p-1.5 hover:bg-white rounded shadow-sm text-gray-600 transition-all" title="Zoom Out"><ZoomOut size={16} /></button>
+              <button onClick={() => setScale(s => Math.max(0.2, s - 0.1))} className="p-1.5 hover:bg-white rounded shadow-sm text-gray-600 transition-all" title={t("Zoom Out")}><ZoomOut size={16} /></button>
               <div className="px-2 flex items-center font-bold text-sm text-gray-700 min-w-[3rem] justify-center">{Math.round(scale * 100)}%</div>
-              <button onClick={() => setScale(s => Math.min(3, s + 0.1))} className="p-1.5 hover:bg-white rounded shadow-sm text-gray-600 transition-all" title="Zoom In"><ZoomIn size={16} /></button>
-              <button onClick={fitToScreen} className="p-1.5 hover:bg-white rounded shadow-sm text-blue-600 transition-all" title="Fit to Screen"><Maximize size={16} /></button>
+              <button onClick={() => setScale(s => Math.min(3, s + 0.1))} className="p-1.5 hover:bg-white rounded shadow-sm text-gray-600 transition-all" title={t("Zoom In")}><ZoomIn size={16} /></button>
+              <button onClick={fitToScreen} className="p-1.5 hover:bg-white rounded shadow-sm text-blue-600 transition-all" title={t("Fit to Screen")}><Maximize size={16} /></button>
             </div>
           </div>
           <div className="w-full overflow-auto pb-16 flex justify-center" style={{ minHeight: '600px' }}>
@@ -767,7 +781,7 @@ const HR: React.FC = () => {
               style={{ transform: `scale(${scale})` }}
             >
               {departments.length === 0 ? (
-                <p className="text-[var(--color-text)]/40">No departments found. Create a department to build the org chart.</p>
+                <p className="text-[var(--color-text)]/40">{t('No departments found. Create a department to build the org chart.')}</p>
               ) : (
                 buildOrgChart(null)
               )}
@@ -777,162 +791,188 @@ const HR: React.FC = () => {
       )}
 
       {/* Employee Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingEmployee ? "Edit Employee" : "Add New Employee"}>
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingEmployee ? t("Edit Employee") : t("Add New Employee")}>
         <form onSubmit={handleEmployeeSubmit} className="space-y-6">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-black/40 uppercase tracking-widest">Full Name</label>
+            <label className="text-xs font-bold text-black/40 uppercase tracking-widest">{t('Full Name')}</label>
             <input type="text" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Department</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Department')}</label>
               <select required value={form.departmentId} onChange={e => setForm({ ...form, departmentId: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
-                <option value="">Select Department</option>
+                <option value="">{t('Select Department')}</option>
                 {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Role</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Role')}</label>
               <input type="text" required value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Email</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Email')}</label>
               <input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Reports To (Manager)</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Reports To (Manager)')}</label>
               <select value={form.managerId} onChange={e => setForm({ ...form, managerId: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
-                <option value="">No Manager</option>
+                <option value="">{t('No Manager')}</option>
                 {employees.filter(e => e.id !== editingEmployee).map(e => <option key={e.id} value={e.id}>{e.name} ({e.role})</option>)}
               </select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Salary</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Salary')}</label>
               <input type="number" required min="0" value={form.salary} onChange={e => setForm({ ...form, salary: parseInt(e.target.value) || 0 })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Hire Date</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Hire Date')}</label>
               <input type="date" required value={form.hireDate} onChange={e => setForm({ ...form, hireDate: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
           </div>
           <button disabled={submitting} type="submit" className="w-full bg-[var(--color-main)] text-white py-4 rounded-2xl font-bold shadow-lg">
-            {submitting ? 'Saving...' : 'Save Employee'}
+            {submitting ? t('Saving...') : t('Save Employee')}
           </button>
         </form>
       </Modal>
 
       {/* Department Modal */}
-      <Modal isOpen={isDeptModalOpen} onClose={() => setIsDeptModalOpen(false)} title={editingDept ? "Edit Department" : "Add New Department"}>
+      <Modal isOpen={isDeptModalOpen} onClose={() => setIsDeptModalOpen(false)} title={editingDept ? t("Edit Department") : t("Add New Department")}>
         <form onSubmit={handleDeptSubmit} className="space-y-6">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-black/40 uppercase tracking-widest">Department Name</label>
+            <label className="text-xs font-bold text-black/40 uppercase tracking-widest">{t('Department Name')}</label>
             <input type="text" required value={deptForm.name} onChange={e => setDeptForm({ ...deptForm, name: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-black/40 uppercase tracking-widest">Description</label>
+            <label className="text-xs font-bold text-black/40 uppercase tracking-widest">{t('Description')}</label>
             <textarea value={deptForm.description} onChange={e => setDeptForm({ ...deptForm, description: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Parent Department</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Parent Department')}</label>
               <select value={deptForm.parentDepartmentId} onChange={e => setDeptForm({ ...deptForm, parentDepartmentId: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
-                <option value="">None (Top Level)</option>
+                <option value="">{t('None (Top Level)')}</option>
                 {departments.filter(d => d.id !== editingDept).map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Department Head</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Department Head')}</label>
               <select value={deptForm.managerId} onChange={e => setDeptForm({ ...deptForm, managerId: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
-                <option value="">Unassigned</option>
+                <option value="">{t('Unassigned')}</option>
                 {employees.map(e => <option key={e.id} value={e.id}>{e.name} ({e.role})</option>)}
               </select>
             </div>
           </div>
           <button disabled={submitting} type="submit" className="w-full bg-[var(--color-main)] text-white py-4 rounded-2xl font-bold shadow-lg">
-            {submitting ? 'Saving...' : 'Save Department'}
+            {submitting ? t('Saving...') : t('Save Department')}
           </button>
         </form>
       </Modal>
 
       {/* Attendance Modal */}
-      <Modal isOpen={isAttendanceModalOpen} onClose={() => setIsAttendanceModalOpen(false)} title="Log Attendance">
+      <Modal isOpen={isAttendanceModalOpen} onClose={() => setIsAttendanceModalOpen(false)} title={t("Log Attendance")}>
         <form onSubmit={handleAttendanceSubmit} className="space-y-6">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Employee</label>
+            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Employee')}</label>
             <select required value={attendanceForm.employee_id} onChange={e => setAttendanceForm({ ...attendanceForm, employee_id: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
-              <option value="">Select Employee</option>
+              <option value="">{t('Select Employee')}</option>
               {employees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Date</label>
+            <div className="flex justify-between items-end">
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Date')}</label>
+              <button 
+                type="button"
+                onClick={() => {
+                  const d = new Date(attendanceForm.date + 'T12:00:00Z');
+                  if (d.getDay() === 0) { // Sunday
+                    setError(t('Cannot set standard shift on a Sunday (Rest Day).'));
+                    return;
+                  }
+                  setAttendanceForm({
+                    ...attendanceForm,
+                    clock_in: `${attendanceForm.date}T08:00`,
+                    clock_out: `${attendanceForm.date}T17:00`
+                  });
+                }}
+                className="text-xs font-bold text-[var(--color-main)] hover:underline"
+              >
+                {t('Set Standard Shift (08:00 - 17:00)')}
+              </button>
+            </div>
             <input type="date" required value={attendanceForm.date} onChange={e => setAttendanceForm({ ...attendanceForm, date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Clock In</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Clock In')}</label>
               <input type="datetime-local" value={attendanceForm.clock_in} onChange={e => setAttendanceForm({ ...attendanceForm, clock_in: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Clock Out</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Clock Out')}</label>
               <input type="datetime-local" value={attendanceForm.clock_out} onChange={e => setAttendanceForm({ ...attendanceForm, clock_out: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Status</label>
-            <select required value={attendanceForm.status} onChange={e => setAttendanceForm({ ...attendanceForm, status: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
-              <option value="present">Present</option>
-              <option value="absent">Absent</option>
-              <option value="late">Late</option>
-              <option value="half_day">Half Day</option>
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Status')}</label>
+              <select required value={attendanceForm.status} onChange={e => setAttendanceForm({ ...attendanceForm, status: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
+                <option value="present">{t('Present')}</option>
+                <option value="absent">{t('Absent')}</option>
+                <option value="late">{t('Late')}</option>
+                <option value="half_day">{t('Half Day')}</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Overtime (Hrs)')}</label>
+              <input type="number" step="0.5" min="0" value={attendanceForm.overtime_hours} onChange={e => setAttendanceForm({ ...attendanceForm, overtime_hours: parseFloat(e.target.value) || 0 })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
+            </div>
           </div>
           <button disabled={submitting} type="submit" className="w-full bg-[var(--color-main)] text-white py-4 rounded-2xl font-bold shadow-lg">
-            {submitting ? 'Saving...' : 'Log Attendance'}
+            {submitting ? t('Saving...') : t('Log Attendance')}
           </button>
         </form>
       </Modal>
 
       {/* Leave Request Modal */}
-      <Modal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} title="Apply for Leave">
+      <Modal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} title={t("Apply for Leave")}>
         <form onSubmit={handleLeaveSubmit} className="space-y-6">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Employee</label>
+            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Employee')}</label>
             <select required value={leaveForm.employee_id} onChange={e => setLeaveForm({ ...leaveForm, employee_id: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
-              <option value="">Select Employee</option>
+              <option value="">{t('Select Employee')}</option>
               {employees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Start Date</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Start Date')}</label>
               <input type="date" required value={leaveForm.start_date} onChange={e => setLeaveForm({ ...leaveForm, start_date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">End Date</label>
+              <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('End Date')}</label>
               <input type="date" required value={leaveForm.end_date} onChange={e => setLeaveForm({ ...leaveForm, end_date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Leave Type</label>
+            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Leave Type')}</label>
             <select required value={leaveForm.type} onChange={e => setLeaveForm({ ...leaveForm, type: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
-              <option value="annual">Annual Leave</option>
-              <option value="sick">Sick Leave</option>
-              <option value="maternity">Maternity/Paternity Leave</option>
-              <option value="unpaid">Unpaid Leave</option>
-              <option value="other">Other</option>
+              <option value="annual">{t('Annual Leave')}</option>
+              <option value="sick">{t('Sick Leave')}</option>
+              <option value="maternity">{t('Maternity/Paternity Leave')}</option>
+              <option value="unpaid">{t('Unpaid Leave')}</option>
+              <option value="other">{t('Other')}</option>
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">Reason</label>
+            <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Reason')}</label>
             <textarea value={leaveForm.reason} onChange={e => setLeaveForm({ ...leaveForm, reason: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
           </div>
           <button disabled={submitting} type="submit" className="w-full bg-[var(--color-main)] text-white py-4 rounded-2xl font-bold shadow-lg">
-            {submitting ? 'Submitting...' : 'Submit Request'}
+            {submitting ? t('Submitting...') : t('Submit Request')}
           </button>
         </form>
       </Modal>
