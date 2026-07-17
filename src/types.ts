@@ -191,6 +191,22 @@ export interface ProductionRun {
   companyId: string;
 }
 
+export interface ProductionStage {
+  id: string;
+  runId: string;
+  stageName: string;
+  stageOrder: number;
+  estimatedTimeMinutes?: number;
+  percentageWeight?: number;
+  assignedOperatorId?: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  actualTimeMinutes?: number;
+  quantityProduced?: number;
+  notes?: string;
+  companyId: string;
+  createdAt: string;
+}
+
 export interface ProductionEvent {
   id: string;
   runId: string;
