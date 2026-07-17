@@ -447,3 +447,5 @@ export const WorkflowTemplates: React.FC = () => {
     </div>
   );
 };
+
+export default WorkflowTemplates;

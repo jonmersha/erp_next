@@ -62,13 +62,15 @@ const ProcurementPlanList: React.FC<Props> = ({ warehouses, materials, factories
     <div className="space-y-4 text-[var(--color-text)]">
       <div className="flex justify-between items-center">
         <h3 className="text-xl font-bold">Procurement Plans</h3>
-        <button 
-          onClick={() => { setSelectedPlan(null); setIsModalOpen(true); }}
-          className="flex items-center space-x-2 bg-[var(--color-main)] text-white px-4 py-2 rounded-xl"
-        >
-          <Plus size={16} />
-          <span>New Plan</span>
-        </button>
+        {profile?.roles?.some(r => ['admin', 'factory_manager'].includes(r)) && (
+          <button 
+            onClick={() => { setSelectedPlan(null); setIsModalOpen(true); }}
+            className="flex items-center space-x-2 bg-[var(--color-main)] text-white px-4 py-2 rounded-xl"
+          >
+            <Plus size={16} />
+            <span>New Plan</span>
+          </button>
+        )}
       </div>
       <table className="w-full text-left">
         <thead>
@@ -98,7 +100,7 @@ const ProcurementPlanList: React.FC<Props> = ({ warehouses, materials, factories
               <td className="py-3">{(plan.totalQuantity || 0).toLocaleString()}</td>
               <td className="py-3 capitalize">{plan.status}</td>
               <td className="py-3 flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-                {plan.status === 'pending_approval' && profile?.uid !== plan.createdBy && ['admin', 'factory_manager', 'finance_manager'].includes(profile?.role || '') && (
+                {plan.status === 'pending_approval' && profile?.uid !== plan.createdBy && profile?.roles?.some(r => ['admin', 'ceo'].includes(r)) && (
                   <button 
                     onClick={(e) => { e.stopPropagation(); handleApprove(plan); }}
                     className="text-[var(--color-main)] hover:text-[var(--color-main)]/80"

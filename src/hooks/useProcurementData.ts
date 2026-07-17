@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Supplier, PurchaseOrder, RawMaterial, Factory, Warehouse } from '../types';
+import { Supplier, PurchaseOrder, RawMaterial, Factory, Warehouse, PurchaseRequisition } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { fetchCollection } from '../utils/firestore';
 
@@ -10,18 +10,22 @@ export const useProcurementData = () => {
   const [materials, setMaterials] = useState<RawMaterial[]>([]);
   const [factories, setFactories] = useState<Factory[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [purchaseRequisitions, setPurchaseRequisitions] = useState<PurchaseRequisition[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     if (!profile?.companyId) return;
     try {
       const companyId = profile.companyId;
-      const [suppliersData, ordersData, materialsData, factoriesData, warehousesData] = await Promise.all([
+      const [suppliersData, ordersData, materialsData, factoriesData, warehousesData, prsData, deptsData] = await Promise.all([
         fetchCollection('suppliers', companyId),
         fetchCollection('purchaseOrders', companyId, { orderByField: 'createdAt', orderDir: 'desc' }),
         fetchCollection('rawMaterials', companyId),
         fetchCollection('factories', companyId),
-        fetchCollection('warehouses', companyId)
+        fetchCollection('warehouses', companyId),
+        fetchCollection('purchaseRequisitions', companyId, { orderByField: 'created_at', orderDir: 'desc' }),
+        fetchCollection('departments', companyId)
       ]);
 
       const enrichedOrders = (ordersData as any[]).map(order => {
@@ -37,6 +41,8 @@ export const useProcurementData = () => {
       if (Array.isArray(materialsData)) setMaterials(materialsData as any);
       if (Array.isArray(factoriesData)) setFactories(factoriesData as any);
       if (Array.isArray(warehousesData)) setWarehouses(warehousesData as any);
+      if (Array.isArray(prsData)) setPurchaseRequisitions(prsData as any);
+      if (Array.isArray(deptsData)) setDepartments(deptsData as any);
     } catch (error) {
       console.error("Error fetching procurement data:", error);
     } finally {
@@ -56,6 +62,8 @@ export const useProcurementData = () => {
     materials,
     factories,
     warehouses,
+    purchaseRequisitions,
+    departments,
     loading,
     refreshData: fetchData
   };

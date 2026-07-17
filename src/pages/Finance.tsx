@@ -3,6 +3,7 @@ import { Invoice, Payment, FinancialPlan } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { CreditCard, FileText, Loader2, TrendingUp } from 'lucide-react';
 import { getInvoices, getPayments, getFinancialPlans } from '../services/financeService';
+import OperationalCosts from '../components/finance/OperationalCosts';
 import { useTranslation } from 'react-i18next';
 
 const Finance: React.FC = () => {
@@ -115,6 +116,10 @@ const Finance: React.FC = () => {
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <OperationalCosts />
       </div>
     </div>
   );

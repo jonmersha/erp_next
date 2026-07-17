@@ -66,3 +66,19 @@ export const approvePurchaseOrder = async (orderId: string, approverId: string) 
 export const approveSupplier = async (supplierId: string, approverId: string) => {
   return await apiService.put(`procurement/suppliers/${supplierId}/approve`, { approverId });
 };
+
+export const createPurchaseRequisition = async (prForm: any, profile: UserProfile | null) => {
+  return await apiService.post('purchaseRequisitions', {
+    ...prForm,
+    createdBy: profile?.uid,
+    company_id: profile?.companyId || ''
+  });
+};
+
+export const approvePurchaseRequisition = async (prId: string, approverId: string) => {
+  return await apiService.put(`purchaseRequisitions/${prId}/approve`, { approverId });
+};
+
+export const rejectPurchaseRequisition = async (prId: string) => {
+  return await apiService.put(`purchaseRequisitions/${prId}/reject`, {});
+};

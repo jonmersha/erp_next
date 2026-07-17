@@ -74,6 +74,88 @@ export interface Supplier {
   status?: 'pending_approval' | 'active' | 'inactive';
   createdBy?: string;
   approvedBy?: string;
+  category?: string;
+  risk_rating?: number;
+  payment_terms?: string;
+  bank_account?: string;
+  tax_id?: string;
+}
+
+export interface Expense {
+  id: string;
+  costCenterId: string;
+  costCenterName?: string;
+  amount: number;
+  date: string;
+  description?: string;
+  category: string;
+  status: 'pending' | 'approved' | 'rejected' | 'paid';
+  companyId: string;
+  createdBy: string;
+  approvedBy?: string;
+  createdAt?: string;
+}
+
+export interface Vehicle {
+  id: string;
+  plateNumber: string;
+  make: string;
+  model: string;
+  type: 'car' | 'truck' | 'van' | 'motorcycle';
+  status: 'active' | 'maintenance' | 'out_of_service';
+  companyId: string;
+  createdAt?: string;
+}
+
+export interface VehicleRequest {
+  id: string;
+  employeeId: string;
+  employeeName?: string;
+  employeeEmail?: string;
+  travelers?: string[];
+  vehicleId?: string;
+  vehiclePlate?: string;
+  startDate: string;
+  endDate: string;
+  purpose: string;
+  costCenterId?: string;
+  costCenterName?: string;
+  status: 'pending_approval' | 'approved' | 'rejected' | 'completed';
+  companyId: string;
+  createdBy: string;
+  approvedBy?: string;
+  createdAt?: string;
+}
+
+export interface FleetConsumption {
+  id: string;
+  vehicleId: string;
+  vehiclePlate?: string;
+  type: 'fuel' | 'maintenance' | 'repair' | 'toll';
+  cost: number;
+  date: string;
+  description?: string;
+  costCenterId?: string;
+  companyId: string;
+  recordedBy: string;
+  createdAt?: string;
+}
+
+export interface PurchaseRequisition {
+  id: string;
+  department_id: string;
+  departmentName?: string;
+  item_id: string;
+  item_name: string;
+  quantity: number;
+  required_date: string;
+  budget_code?: string;
+  notes?: string;
+  status: 'draft' | 'pending_approval' | 'approved' | 'rejected' | 'converted_to_po';
+  createdBy?: string;
+  approvedBy?: string;
+  company_id: string;
+  createdAt: string;
 }
 
 export interface RawMaterial {
@@ -188,6 +270,8 @@ export interface ProductionRun {
   status: 'planned' | 'in_progress' | 'completed';
   startDate: string;
   updatedAt?: string;
+  calculatedProgress?: number;
+  currentStageName?: string;
   companyId: string;
 }
 
@@ -396,3 +480,49 @@ export interface QualityCheck {
   companyId: string;
 }
 
+export interface WeighbridgeLog {
+  id: string;
+  reference_type: 'PO' | 'SO' | 'Transfer' | 'Other';
+  reference_id?: string;
+  po_id?: string;
+  truck_plate: string;
+  driver_name?: string;
+  gross_weight?: number;
+  tare_weight?: number;
+  net_weight?: number;
+  entry_time: string;
+  exit_time?: string;
+  company_id: string;
+}
+
+export interface LeaveRequest {
+  id: string;
+  employeeId: string;
+  employeeName?: string;
+  employeeEmail?: string;
+  employeeRole?: string;
+  startDate: string;
+  endDate: string;
+  type: string;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  approverId?: string;
+  approverName?: string;
+  companyId: string;
+}
+
+export interface QualityInspection {
+  id: string;
+  weighbridge_log_id: string;
+  truck_plate?: string;
+  reference_id?: string;
+  moisture?: number;
+  protein?: number;
+  ash?: number;
+  gluten?: number;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  inspector_id?: string;
+  notes?: string;
+  company_id: string;
+  created_at: string;
+}

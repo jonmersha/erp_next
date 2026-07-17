@@ -13,6 +13,7 @@ const Admin: React.FC = () => {
     { name: t('Roles & Permissions'), path: '/roles', icon: Shield, description: t('Manage system and custom roles') },
     { name: t('Master Data'), path: '/master-data', icon: Database, description: t('Manage structural entities') },
     { name: t('Company Settings'), path: '/settings', icon: Settings, description: t('Update company profile and contact info') },
+    { name: t('Backup & Restore'), path: '/backup-restore', icon: Database, description: t('Export and import database SQL or CSV') },
   ];
 
   return (
@@ -28,7 +29,7 @@ const Admin: React.FC = () => {
         {adminTasks.map((task) => (
           <Link
             key={task.name}
-            to={task.path}
+            href={task.path}
             className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 hover:border-[var(--color-main)]/50 transition-all group"
           >
             <div className="w-12 h-12 bg-[var(--color-main)]/10 text-[var(--color-main)] rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">

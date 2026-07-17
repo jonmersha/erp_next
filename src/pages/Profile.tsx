@@ -44,6 +44,23 @@ const Profile: React.FC = () => {
     reason: ''
   });
 
+  // Auto-calculate overtime when clock_in or clock_out changes
+  useEffect(() => {
+    if (attendanceForm.clock_in && attendanceForm.clock_out) {
+      const inTime = new Date(attendanceForm.clock_in).getTime();
+      const outTime = new Date(attendanceForm.clock_out).getTime();
+      if (outTime > inTime) {
+        const diffHours = (outTime - inTime) / (1000 * 60 * 60);
+        // Standard shift is 9 hours (e.g. 08:00 to 17:00)
+        const overtime = Math.max(0, diffHours - 9);
+        setAttendanceForm(prev => ({
+          ...prev,
+          overtime_hours: Number(overtime.toFixed(1))
+        }));
+      }
+    }
+  }, [attendanceForm.clock_in, attendanceForm.clock_out]);
+
   useEffect(() => {
     if (profile) {
       setName(profile.name || '');

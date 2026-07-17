@@ -16,23 +16,32 @@ import {
   CheckCircle2,
   AlertCircle,
   Edit2,
-  Trash2
+  Trash2,
+  X
 } from 'lucide-react';
 import SupplierModal from './SupplierModal';
 import PurchaseOrderModal from './PurchaseOrderModal';
 import Badge from '../common/Badge';
-import { deleteSupplier, approveSupplier, approvePurchaseOrder } from '../../services/procurementService';
+import { deleteSupplier, approveSupplier, approvePurchaseOrder, approvePurchaseRequisition, rejectPurchaseRequisition } from '../../services/procurementService';
 import { useAuth } from '../../context/AuthContext';
+import PurchaseRequisitionModal from './PurchaseRequisitionModal';
 
 const Procurement: React.FC = () => {
   const { profile } = useAuth();
-  const { suppliers, orders, materials, factories, warehouses, loading, refreshData } = useProcurementData();
-  const [activeTab, setActiveTab] = useState<'orders' | 'suppliers'>('orders');
+  const { suppliers, orders, materials, factories, warehouses, purchaseRequisitions, departments, loading, refreshData } = useProcurementData();
+  const [activeTab, setActiveTab] = useState<'requisitions' | 'orders' | 'suppliers'>('requisitions');
   const [searchTerm, setSearchTerm] = useState('');
   const [isSupplierModalOpen, setIsSupplierModalOpen] = useState(false);
   const [isPOModalOpen, setIsPOModalOpen] = useState(false);
   const [selectedPO, setSelectedPO] = useState<any>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<any>(null);
+  const [isPRModalOpen, setIsPRModalOpen] = useState(false);
+
+  const filteredRequisitions = purchaseRequisitions.filter(pr => 
+    pr.departmentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    pr.item_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    pr.id?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const filteredOrders = orders.filter(o => 
     o.supplierName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -77,6 +86,28 @@ const Procurement: React.FC = () => {
     }
   };
 
+  const handleApprovePR = async (id: string) => {
+    try {
+      if (profile?.uid) {
+        await approvePurchaseRequisition(id, profile.uid);
+        await refreshData();
+      }
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to approve requisition');
+    }
+  };
+
+  const handleRejectPR = async (id: string) => {
+    if (confirm('Are you sure you want to reject this requisition?')) {
+      try {
+        await rejectPurchaseRequisition(id);
+        await refreshData();
+      } catch (error: any) {
+        alert(error.response?.data?.error || 'Failed to reject requisition');
+      }
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'received': return 'emerald';
@@ -112,6 +143,13 @@ const Procurement: React.FC = () => {
           >
             <Users size={16} />
             <span>Add Supplier</span>
+          </button>
+          <button 
+            onClick={() => setIsPRModalOpen(true)}
+            className="flex items-center space-x-2 px-6 py-2.5 bg-[var(--color-main)]/10 text-[var(--color-main)] rounded-xl text-sm font-bold hover:bg-[var(--color-main)]/20 transition-all"
+          >
+            <Plus size={16} />
+            <span>New Requisition</span>
           </button>
           <button 
             onClick={() => { setSelectedPO(null); setIsPOModalOpen(true); }}
@@ -162,6 +200,12 @@ const Procurement: React.FC = () => {
         <div className="p-6 border-b border-[var(--color-text)]/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex space-x-1 bg-[var(--color-text)]/5 p-1 rounded-xl w-fit">
             <button 
+              onClick={() => setActiveTab('requisitions')}
+              className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'requisitions' ? 'bg-[var(--color-surface)] text-[var(--color-main)] shadow-sm' : 'text-[var(--color-text)]/40 hover:text-[var(--color-text)]/60'}`}
+            >
+              Requisitions
+            </button>
+            <button 
               onClick={() => setActiveTab('orders')}
               className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === 'orders' ? 'bg-[var(--color-surface)] text-[var(--color-main)] shadow-sm' : 'text-[var(--color-text)]/40 hover:text-[var(--color-text)]/60'}`}
             >
@@ -190,6 +234,72 @@ const Procurement: React.FC = () => {
         <div className="overflow-x-auto">
           {loading ? (
             <div className="p-20 text-center text-[var(--color-text)]/30 animate-pulse">Loading {activeTab} data...</div>
+          ) : activeTab === 'requisitions' ? (
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-[var(--color-text)]/30 text-[10px] font-bold uppercase tracking-widest">
+                  <th className="px-8 py-4">PR Code</th>
+                  <th className="px-8 py-4">Department</th>
+                  <th className="px-8 py-4">Item & Qty</th>
+                  <th className="px-8 py-4">Required By</th>
+                  <th className="px-8 py-4">Status</th>
+                  <th className="px-8 py-4"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--color-text)]/5">
+                {filteredRequisitions.map((pr) => (
+                  <motion.tr 
+                    key={pr.id} 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="hover:bg-[var(--color-text)]/[0.02] transition-colors group"
+                  >
+                    <td className="px-8 py-4">
+                      <p className="text-xs font-mono font-bold text-[var(--color-main)]">#{pr.id?.slice(0, 8)}</p>
+                    </td>
+                    <td className="px-8 py-4">
+                      <p className="font-bold text-[var(--color-text)] text-sm">{pr.departmentName || 'Unknown'}</p>
+                      {pr.budget_code && <p className="text-[10px] text-[var(--color-text)]/40">{pr.budget_code}</p>}
+                    </td>
+                    <td className="px-8 py-4">
+                      <p className="font-bold text-[var(--color-text)] text-sm">{pr.item_name}</p>
+                      <p className="text-[10px] text-[var(--color-text)]/40">{pr.quantity}</p>
+                    </td>
+                    <td className="px-8 py-4 text-xs font-bold text-[var(--color-text)]/70">
+                      {new Date(pr.required_date).toLocaleDateString()}
+                    </td>
+                    <td className="px-8 py-4">
+                      <Badge 
+                        color={getStatusColor(pr.status) as any} 
+                        label={pr.status.replace('_', ' ')} 
+                        leftIcon={getStatusIcon(pr.status)}
+                        className="text-[10px]"
+                      />
+                    </td>
+                    <td className="px-8 py-4 text-right flex justify-end space-x-2">
+                      {pr.status === 'pending_approval' && profile?.uid !== pr.createdBy && profile?.roles?.some(r => ['admin'].includes(r)) && (
+                        <>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleApprovePR(pr.id); }}
+                            className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all"
+                            title="Approve PR"
+                          >
+                            <CheckCircle2 size={18} />
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleRejectPR(pr.id); }}
+                            className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                            title="Reject PR"
+                          >
+                            <X size={18} />
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
           ) : activeTab === 'orders' ? (
             <table className="w-full text-left">
               <thead>
@@ -232,7 +342,7 @@ const Procurement: React.FC = () => {
                       {new Date(order.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-8 py-4 text-right flex justify-end space-x-2">
-                      {order.status === 'pending_approval' && profile?.uid !== order.createdBy && ['admin', 'factory_manager', 'finance_manager'].includes(profile?.role || '') && (
+                      {order.status === 'pending_approval' && profile?.uid !== order.createdBy && profile?.roles?.some(r => ['admin'].includes(r)) && (
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleApprovePO(order.id); }}
                           className="p-2 text-[var(--color-main)] hover:bg-[var(--color-main)]/10 rounded-lg transition-all"
@@ -321,7 +431,7 @@ const Procurement: React.FC = () => {
           )}
         </div>
 
-        {!loading && (activeTab === 'orders' ? filteredOrders.length : filteredSuppliers.length) === 0 && (
+        {!loading && (activeTab === 'requisitions' ? filteredRequisitions.length : activeTab === 'orders' ? filteredOrders.length : filteredSuppliers.length) === 0 && (
           <div className="p-20 text-center">
             <div className="w-16 h-16 bg-[var(--color-text)]/5 rounded-full flex items-center justify-center mx-auto mb-4 text-[var(--color-text)]/20">
               <ShoppingCart size={32} />
@@ -347,6 +457,14 @@ const Procurement: React.FC = () => {
         materials={materials}
         factories={factories}
         warehouses={warehouses}
+      />
+
+      <PurchaseRequisitionModal
+        isOpen={isPRModalOpen}
+        onClose={() => setIsPRModalOpen(false)}
+        onSuccess={refreshData}
+        departments={departments}
+        materials={materials}
       />
     </div>
   );

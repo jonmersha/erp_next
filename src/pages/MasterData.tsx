@@ -23,7 +23,7 @@ import { fetchCollection } from '../utils/firestore';
 
 const MasterData: React.FC = () => {
   const { t } = useTranslation();
-  const { profile, isAdmin } = useAuth();
+  const { profile, isAdmin, hasRole } = useAuth();
   
   // Data States
   const [factories, setFactories] = useState<Factory[]>([]);
@@ -79,7 +79,7 @@ const MasterData: React.FC = () => {
     fetchData();
   }, [profile?.companyId]);
 
-  const canManage = isAdmin || profile?.role === 'admin' || profile?.role === 'factory_manager';
+  const canManage = isAdmin || hasRole('admin') || hasRole('factory_manager');
 
   const handleEdit = (item: any) => {
     setEditingItem(item);

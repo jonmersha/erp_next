@@ -1,6 +1,5 @@
-"use client";
+'use client';
 import Logistics from '../../../pages/Logistics';
-
-export default function Page() {
+export default function LogisticsPage() {
   return <Logistics />;
 }

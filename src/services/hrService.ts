@@ -1,6 +1,10 @@
 import { UserProfile } from '../types';
 import { apiService } from './apiService';
 
+export const getEmployees = async (companyId: string) => {
+  return await apiService.fetchCollection('employees', companyId);
+};
+
 export const createEmployee = async (form: any, profile: UserProfile | null) => {
   return await apiService.post('employees', {
     ...form,

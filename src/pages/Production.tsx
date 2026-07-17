@@ -65,8 +65,10 @@ const Production: React.FC = () => {
           return statusOrder[a.status] - statusOrder[b.status];
         }
         // Then by progress (descending)
-        const progressA = a.quantity > 0 ? a.quantityProduced / a.quantity : 0;
-        const progressB = b.quantity > 0 ? b.quantityProduced / b.quantity : 0;
+        // Then by progress (descending)
+        const getProgress = (r: ProductionRun) => r.calculatedProgress !== undefined ? r.calculatedProgress : (r.quantity > 0 ? (r.quantityProduced / r.quantity) * 100 : 0);
+        const progressA = getProgress(a);
+        const progressB = getProgress(b);
         return progressB - progressA;
       });
   }, [runs, products, factories, searchQuery, statusFilter]);
@@ -140,8 +142,12 @@ const Production: React.FC = () => {
         </button>
       </header>
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Main Layout */}
+      <div className="flex flex-col xl:flex-row gap-8 items-start">
+        {/* Left Column (Primary) */}
+        <div className="flex-1 space-y-8 w-full overflow-hidden">
+          {/* Stats Summary */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-[var(--color-surface)] p-6 rounded-3xl border border-[var(--color-text)]/20 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-500">
@@ -172,82 +178,29 @@ const Production: React.FC = () => {
           <p className="text-3xl font-bold text-[var(--color-text)]">{stats.completedToday}</p>
           <p className="text-sm text-[var(--color-text)]/40 mt-1">{t('Completed in last 24h')}</p>
         </div>
-      </div>
+          </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {factories.map(factory => {
-          const factoryRuns = runs.filter(r => r.factoryId === factory.id);
-          const activeRuns = factoryRuns.filter(r => r.status === 'in_progress');
-          const factoryPlans = plans.filter(p => p.factoryId === factory.id);
-          const totalPlanned = factoryPlans.reduce((acc, p) => acc + Number(p.totalQuantity || 0), 0);
-          
-          const totalProduced = activeRuns.reduce((acc, r) => acc + Number(r.quantityProduced || 0), 0);
-          const totalTarget = activeRuns.reduce((acc, r) => acc + Number(r.quantity || 0), 0);
-          const productionRate = totalTarget > 0 ? Math.round((totalProduced / totalTarget) * 100) : 0;
-
-          return (
-            <motion.div 
-              key={factory.id}
-              whileHover={{ y: -5 }}
-              className="bg-[var(--color-surface)] p-6 rounded-3xl shadow-sm border border-[var(--color-text)]/20"
-            >
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="p-3 bg-[var(--color-main)]/10 rounded-2xl text-[var(--color-main)]">
-                  <FactoryIcon size={24} />
+          <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
+            <div className="p-6 border-b border-[var(--color-text)]/20 flex flex-col items-center gap-4">
+              <h3 className="font-serif font-bold text-xl text-[var(--color-text)] text-center">{t('Manufacturing Schedule')}</h3>
+              <div className="flex flex-col md:flex-row justify-center items-center gap-4 w-full max-w-2xl">
+                <div className="relative w-full md:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text)]/20" size={18} />
+                  <input 
+                    type="text"
+                    placeholder={t("Search runs...")}
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-4 py-2 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-sm w-full"
+                  />
                 </div>
-                <div>
-                  <h3 className="font-bold text-[var(--color-text)]">{factory.name}</h3>
-                  <p className="text-xs text-[var(--color-text)]/40">{factory.location}</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40">{t('Planned Plan')}</span>
-                  <span className="font-bold text-[var(--color-text)]">{totalPlanned.toLocaleString()} units</span>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40">{t('Production Rate')}</span>
-                  <span className="font-bold text-emerald-500">{productionRate}%</span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40">{t('Total Finished')}</span>
-                  <span className="font-bold text-[var(--color-text)]">{totalProduced.toLocaleString()} units</span>
-                </div>
-
-                <div className="pt-4 border-t border-[var(--color-text)]/20 flex justify-between items-center">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40">{t('Active Runs')}</span>
-                  <span className="font-bold text-[var(--color-main)]">{activeRuns.length}</span>
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      <div className="bg-[var(--color-surface)] rounded-3xl shadow-sm border border-[var(--color-text)]/20 overflow-hidden">
-        <div className="p-6 border-b border-[var(--color-text)]/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h3 className="font-serif font-bold text-lg text-[var(--color-text)]">{t('Manufacturing Schedule')}</h3>
-          <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text)]/20" size={18} />
-              <input 
-                type="text"
-                placeholder={t("Search runs...")}
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20 text-sm w-full md:w-64"
-              />
-            </div>
-            <div className="flex items-center space-x-2 bg-[var(--color-bg)] px-3 py-2 rounded-xl border border-[var(--color-text)]/20">
-              <Filter size={16} className="text-[var(--color-text)]/40" />
-              <select 
-                value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
-                className="bg-transparent text-sm focus:outline-none text-[var(--color-text)]/60 font-medium"
-              >
+                <div className="flex items-center space-x-2 bg-[var(--color-bg)] px-3 py-2 rounded-xl border border-[var(--color-text)]/20 w-full md:w-auto">
+                  <Filter size={16} className="text-[var(--color-text)]/40 shrink-0" />
+                  <select 
+                    value={statusFilter}
+                    onChange={e => setStatusFilter(e.target.value)}
+                    className="bg-transparent border-none focus:outline-none text-sm font-medium text-[var(--color-text)] w-full md:w-auto"
+                  >
                 <option value="all">{t('All Status')}</option>
                 <option value="planned">{t('Planned')}</option>
                 <option value="in_progress">{t('In Progress')}</option>
@@ -273,7 +226,7 @@ const Production: React.FC = () => {
               {filteredRuns.map((run) => {
                 const product = products.find(p => p.id === run.productId);
                 const recipe = recipes.find(r => r.id === run.recipeId);
-                const progress = run.quantity > 0 ? Math.round((run.quantityProduced / run.quantity) * 100) : 0;
+                const progress = run.calculatedProgress !== undefined ? Math.round(run.calculatedProgress) : (run.quantity > 0 ? Math.round((run.quantityProduced / run.quantity) * 100) : 0);
                 
                 return (
                   <tr key={run.id} className="hover:bg-[var(--color-text)]/[0.02] transition-colors">
@@ -313,6 +266,11 @@ const Production: React.FC = () => {
                       }>
                         {run.status.replace('_', ' ')}
                       </Badge>
+                      {run.status === 'in_progress' && run.currentStageName && (
+                        <div className="text-[10px] uppercase font-bold text-[var(--color-text)]/40 mt-2 truncate w-24">
+                          {run.currentStageName}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end space-x-2">
@@ -326,22 +284,13 @@ const Production: React.FC = () => {
                           </button>
                         )}
                         {run.status === 'in_progress' && (
-                          <>
-                            <button 
-                              onClick={() => setProgressModal({isOpen: true, runId: run.id, quantity: run.quantityProduced, target: run.quantity})}
-                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                              title="Update Progress"
-                            >
-                              <Clock size={18} />
-                            </button>
-                            <button 
-                              onClick={() => onUpdateProgress(run.id, run.quantity, 'completed')}
-                              className="p-2 text-[var(--color-main)] hover:bg-[var(--color-main)]/10 rounded-lg transition-colors"
-                              title="Complete Production"
-                            >
-                              <CheckCircle size={18} />
-                            </button>
-                          </>
+                          <button 
+                            onClick={() => setProgressModal({isOpen: true, runId: run.id, quantity: run.quantityProduced, target: run.quantity})}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Update Progress"
+                          >
+                            <Clock size={18} />
+                          </button>
                         )}
                         {run.status === 'completed' && (
                           <button 
@@ -378,6 +327,79 @@ const Production: React.FC = () => {
             </tbody>
           </table>
         </div>
+      </div>
+      </div>
+
+        {/* Right Column (Sidebar) */}
+        <div className="w-full xl:w-80 flex flex-col gap-4 shrink-0">
+          <h3 className="font-bold text-[var(--color-text)] uppercase tracking-widest text-xs mb-2 pl-2">
+            {t('Factory Overviews')}
+          </h3>
+          <div className="flex flex-col gap-4">
+        {factories.map(factory => {
+          const factoryRuns = runs.filter(r => r.factoryId === factory.id);
+          const activeRuns = factoryRuns.filter(r => r.status === 'in_progress');
+          const factoryPlans = plans.filter(p => p.factoryId === factory.id);
+          const totalPlanned = factoryPlans.reduce((acc, p) => acc + Number(p.totalQuantity || 0), 0);
+          
+          const totalProduced = activeRuns.reduce((acc, r) => acc + Number(r.quantityProduced || 0), 0);
+          const totalTarget = activeRuns.reduce((acc, r) => acc + Number(r.quantity || 0), 0);
+          const productionRate = totalTarget > 0 ? Math.round((totalProduced / totalTarget) * 100) : 0;
+
+          return (
+            <motion.div 
+              key={factory.id}
+              whileHover={{ y: -2 }}
+              className="bg-[var(--color-surface)] p-5 rounded-3xl shadow-sm border border-[var(--color-text)]/20 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-24 h-24 bg-[var(--color-main)]/5 rounded-full blur-xl -mr-10 -mt-10" />
+              
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="p-2.5 bg-[var(--color-main)]/10 rounded-2xl text-[var(--color-main)]">
+                  <FactoryIcon size={20} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-[var(--color-text)] text-sm">{factory.name}</h3>
+                  <p className="text-[10px] text-[var(--color-text)]/40 truncate w-40">{factory.location}</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-[var(--color-text)]/40 block mb-1">{t('Total Target')}</span>
+                    <span className="font-bold text-[var(--color-text)] text-sm">{totalTarget.toLocaleString()}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-bold text-[var(--color-text)]/40 block mb-1">{t('Finished')}</span>
+                    <span className="font-bold text-[var(--color-text)] text-sm">{totalProduced.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[10px] uppercase font-bold text-[var(--color-text)]/40">{t('Production Rate')}</span>
+                    <span className="font-bold text-[10px] text-[var(--color-main)]">{productionRate}%</span>
+                  </div>
+                  <div className="h-1.5 bg-[var(--color-bg)] rounded-full overflow-hidden border border-[var(--color-text)]/5">
+                    <motion.div 
+                      initial={{ width: 0 }}
+                      animate={{ width: `${productionRate}%` }}
+                      className="h-full bg-[var(--color-main)] rounded-full"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-[var(--color-text)]/10 flex justify-between items-center">
+                  <span className="text-[10px] uppercase font-bold text-[var(--color-text)]/40">{t('Active Runs')}</span>
+                  <Badge variant={activeRuns.length > 0 ? 'info' : 'default'}>{activeRuns.length}</Badge>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+      </div>
       </div>
 
       <Modal isOpen={!!selectedRun} onClose={() => setSelectedRun(null)} title={t("Production Run Details")}>
@@ -454,13 +476,13 @@ const Production: React.FC = () => {
                   )}
                 </div>
                 <p className="text-xl font-bold text-[var(--color-main)]">
-                  {selectedRun.quantity > 0 ? Math.round((selectedRun.quantityProduced / selectedRun.quantity) * 100) : 0}%
+                  {selectedRun.calculatedProgress !== undefined ? Math.round(selectedRun.calculatedProgress) : (selectedRun.quantity > 0 ? Math.round((selectedRun.quantityProduced / selectedRun.quantity) * 100) : 0)}%
                 </p>
               </div>
               <div className="h-3 bg-[var(--color-surface)] rounded-full overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
-                  animate={{ width: `${selectedRun.quantity > 0 ? (selectedRun.quantityProduced / selectedRun.quantity) * 100 : 0}%` }}
+                  animate={{ width: `${selectedRun.calculatedProgress !== undefined ? selectedRun.calculatedProgress : (selectedRun.quantity > 0 ? (selectedRun.quantityProduced / selectedRun.quantity) * 100 : 0)}%` }}
                   className="h-full bg-[var(--color-main)] rounded-full"
                 />
               </div>

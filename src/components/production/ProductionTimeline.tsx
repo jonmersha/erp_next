@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ProductionEvent, ProductionRun, Warehouse, RawMaterial } from '../../types';
+import { ProductionEvent, ProductionRun, ProductionStage } from '../../types';
 import { apiService } from '../../services/apiService';
 import { useAuth } from '../../context/AuthContext';
-import { ArrowDownToLine, Droplets, RotateCw, Beaker, Package, CheckCircle, Loader2, Play } from 'lucide-react';
+import { Play, CheckCircle, Loader2 } from 'lucide-react';
 
 interface Props {
   run: ProductionRun;
@@ -11,13 +11,14 @@ interface Props {
 
 export const ProductionTimeline: React.FC<Props> = ({ run, onStatusChange }) => {
   const { profile } = useAuth();
-  const [stages, setStages] = useState<any[]>([]);
+  const [stages, setStages] = useState<ProductionStage[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Form States for updating a dynamic stage
   const [actualTimeMinutes, setActualTimeMinutes] = useState<number | ''>('');
+  const [quantityProduced, setQuantityProduced] = useState<number | ''>('');
   const [notes, setNotes] = useState<string>('');
 
   useEffect(() => {
@@ -48,10 +49,12 @@ export const ProductionTimeline: React.FC<Props> = ({ run, onStatusChange }) => 
       await apiService.put(`production/${run.id}/stages/${stageId}`, {
         status: 'completed',
         actualTimeMinutes: actualTimeMinutes || undefined,
+        quantityProduced: quantityProduced || undefined,
         notes: notes || undefined,
         performedBy: profile?.uid
       });
       setActualTimeMinutes('');
+      setQuantityProduced('');
       setNotes('');
       await fetchStages();
       // If this was the last stage, update run status to completed? We could just let it be.
@@ -118,6 +121,11 @@ export const ProductionTimeline: React.FC<Props> = ({ run, onStatusChange }) => 
                         <span className="font-bold">Time Taken:</span> {stage.actualTimeMinutes} mins
                       </div>
                     )}
+                    {stage.quantityProduced && (
+                      <div>
+                        <span className="font-bold">Units Produced:</span> {stage.quantityProduced}
+                      </div>
+                    )}
                     {stage.notes && (
                       <div className="col-span-2">
                         <span className="font-bold">Notes:</span> {stage.notes}
@@ -128,18 +136,25 @@ export const ProductionTimeline: React.FC<Props> = ({ run, onStatusChange }) => 
 
                 {isCurrent && (
                   <div className="mt-3 space-y-4 border-l-2 border-[var(--color-main)] pl-4 ml-2">
-                    <div className="grid grid-cols-2 gap-3 mt-3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
                       <input 
                         type="number" 
-                        placeholder="Actual Time Taken (minutes)" 
+                        placeholder="Time Taken (mins)" 
                         className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-sm" 
                         value={actualTimeMinutes}
                         onChange={e => setActualTimeMinutes(Number(e.target.value))} 
                       />
                       <input 
-                        type="text" 
-                        placeholder="Notes / Operator Comments" 
+                        type="number" 
+                        placeholder="Units Produced" 
                         className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-sm" 
+                        value={quantityProduced}
+                        onChange={e => setQuantityProduced(Number(e.target.value))} 
+                      />
+                      <input 
+                        type="text" 
+                        placeholder="Notes / Comments" 
+                        className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-sm md:col-span-1 col-span-2" 
                         value={notes}
                         onChange={e => setNotes(e.target.value)} 
                       />

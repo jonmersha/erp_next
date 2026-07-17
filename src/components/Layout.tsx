@@ -85,28 +85,64 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       alwaysShow: true 
     },
     { 
-      name: t('Operations'), 
-      icon: Factory, 
+      name: t('Reports & Analytics'), 
+      path: '/reports', 
+      icon: TrendingUp, 
+      alwaysShow: true 
+    },
+    {
+      name: t('Supply Chain & Inventory'),
+      icon: Truck,
       submenu: [
-        { name: t('Planning'), path: '/planning', icon: Calendar, module: 'planning' },
+        { name: t('Strategic Sourcing'), path: '/supply-chain/sourcing', icon: Package, module: 'procurement' },
         { name: t('Procurement'), path: '/procurement', icon: ShoppingCart, module: 'procurement' },
-        { name: t('Inventory'), path: '/inventory', icon: Warehouse, module: 'inventory' },
-        { name: t('Production'), path: '/production', icon: Factory, module: 'production' },
-        { name: t('Factory Floor'), path: '/factory-floor', icon: Factory, module: 'production' },
-        { name: t('Workflow Templates'), path: '/workflow-templates', icon: Database, module: 'production' },
-        { name: t('Recipes'), path: '/recipes', icon: BookOpen, module: 'recipes' },
-        { name: t('Maintenance'), path: '/maintenance', icon: Wrench, module: 'maintenance' },
-        { name: t('Logistics'), path: '/logistics', icon: Truck, module: 'logistics' },
-        { name: t('Quality'), path: '/quality', icon: CheckCircle2, module: 'quality' },
+        { name: t('Warehouse Management'), path: '/inventory', icon: Warehouse, module: 'inventory' },
+        { name: t('Material Planning'), path: '/supply-chain/material-planning', icon: Package, module: 'inventory' },
+        { name: t('Batch Traceability'), path: '/supply-chain/traceability', icon: Package, module: 'inventory' },
       ]
     },
     { 
-      name: t('Sales & Finance'), 
-      icon: CreditCard, 
+      name: t('Manufacturing Operations'), 
+      icon: Factory, 
       submenu: [
-        { name: t('Sales'), path: '/sales', icon: TrendingUp, module: 'sales' },
-        { name: t('CRM'), path: '/crm', icon: Users, module: 'sales' },
-        { name: t('Finance'), path: '/finance', icon: CreditCard, module: 'finance' },
+        { name: t('Production Planning'), path: '/planning', icon: Calendar, module: 'planning' },
+        { name: t('Bill of Materials'), path: '/recipes', icon: BookOpen, module: 'recipes' },
+        { name: t('Material Consumption'), path: '/manufacturing/consumption', icon: Factory, module: 'production' },
+        { name: t('Work-in-Progress Tracking'), path: '/production', icon: Factory, module: 'production' },
+        { name: t('Factory Floor'), path: '/factory-floor', icon: Factory, module: 'production' },
+        { name: t('Workflow Templates'), path: '/workflow-templates', icon: Database, module: 'production' },
+      ]
+    },
+    {
+      name: t('Quality Management'),
+      icon: CheckCircle2,
+      submenu: [
+        { name: t('Laboratory Management'), path: '/quality/laboratory', icon: CheckCircle2, module: 'quality' },
+        { name: t('Quality Assurance'), path: '/quality', icon: CheckCircle2, module: 'quality' },
+        { name: t('Inspections'), path: '/quality/inspections', icon: CheckCircle2, module: 'quality' },
+        { name: t('Non-Conformance Management'), path: '/quality/non-conformance', icon: CheckCircle2, module: 'quality' },
+        { name: t('Maintenance'), path: '/maintenance', icon: Wrench, module: 'maintenance' },
+      ]
+    },
+    {
+      name: t('Finance & Accounting'),
+      icon: CreditCard,
+      submenu: [
+        { name: t('General Ledger'), path: '/finance/gl', icon: CreditCard, module: 'finance' },
+        { name: t('Accounts Payable/Receivable'), path: '/finance/ap-ar', icon: CreditCard, module: 'finance' },
+        { name: t('Fixed Assets'), path: '/finance/assets', icon: CreditCard, module: 'finance' },
+        { name: t('Advanced Cost Accounting'), path: '/finance', icon: CreditCard, module: 'finance' },
+      ]
+    },
+    { 
+      name: t('Sales & Distribution'), 
+      icon: Users, 
+      submenu: [
+        { name: t('Customer Management'), path: '/crm', icon: Users, module: 'sales' },
+        { name: t('Sales Orders'), path: '/sales', icon: TrendingUp, module: 'sales' },
+        { name: t('Dynamic Pricing'), path: '/sales/pricing', icon: TrendingUp, module: 'sales' },
+        { name: t('Logistics & Delivery'), path: '/logistics', icon: Truck, module: 'logistics' },
+        { name: t('Billing'), path: '/sales/billing', icon: CreditCard, module: 'sales' },
       ]
     },
     { 
@@ -127,6 +163,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         return { ...item, submenu: filteredSub };
       }
       return null;
+    }
+    
+    if ('module' in item && item.module) {
+      return can('read', item.module) ? item : null;
     }
     
     return null;

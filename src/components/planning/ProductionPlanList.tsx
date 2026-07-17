@@ -142,7 +142,7 @@ const ProductionPlanList: React.FC<Props> = ({ factories, products, materials })
               <td className="py-3">{(plan.totalQuantity || 0).toLocaleString()}</td>
               <td className="py-3 capitalize">{plan.status}</td>
               <td className="py-3 flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
-                {plan.status === 'pending_approval' && profile?.uid !== plan.createdBy && ['admin', 'factory_manager'].includes(profile?.role || '') && (
+                {plan.status === 'pending_approval' && profile?.uid !== plan.createdBy && profile?.roles?.some(r => ['admin', 'factory_manager'].includes(r)) && (
                   <button 
                     onClick={(e) => { e.stopPropagation(); handleApprove(plan); }}
                     className="text-[var(--color-main)] hover:text-[var(--color-main)]/80"

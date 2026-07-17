@@ -123,6 +123,23 @@ const HR: React.FC = () => {
     reason: ''
   });
 
+  // Auto-calculate overtime when clock_in or clock_out changes
+  useEffect(() => {
+    if (attendanceForm.clock_in && attendanceForm.clock_out) {
+      const inTime = new Date(attendanceForm.clock_in).getTime();
+      const outTime = new Date(attendanceForm.clock_out).getTime();
+      if (outTime > inTime) {
+        const diffHours = (outTime - inTime) / (1000 * 60 * 60);
+        // Standard shift is 9 hours (e.g. 08:00 to 17:00)
+        const overtime = Math.max(0, diffHours - 9);
+        setAttendanceForm(prev => ({
+          ...prev,
+          overtime_hours: Number(overtime.toFixed(1))
+        }));
+      }
+    }
+  }, [attendanceForm.clock_in, attendanceForm.clock_out]);
+
   const handleEmployeeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -739,7 +756,7 @@ const HR: React.FC = () => {
                       {leave.status !== 'pending' && <p className="text-[10px] mt-1 text-[var(--color-text)]/40">{t('by ')}{leave.approverName}</p>}
                     </td>
                     <td className="p-4 text-right space-x-2">
-                      {leave.status === 'pending' && (
+                      {leave.status === 'pending' && leave.employeeEmail !== profile?.email && (
                         <>
                           <button onClick={() => handleLeaveStatus(leave.id, 'approved')} className="p-1.5 text-emerald-600 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors inline-block" title={t("Approve")}>
                             <Check size={16} />
