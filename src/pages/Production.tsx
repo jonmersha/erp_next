@@ -4,9 +4,10 @@ import { ProductionRun } from '../types';
 import { createProductionRun, updateProductionProgress } from '../services/productionService';
 import { transferProductionToWarehouse } from '../services/inventoryService';
 import { useAuth } from '../context/AuthContext';
+import { auth } from '../firebase';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
-import { Factory as FactoryIcon, Play, CheckCircle, Clock, Plus, Settings, Loader2, ArrowRight, Search, Filter, TrendingUp, AlertCircle } from 'lucide-react';
+import { Factory as FactoryIcon, Play, CheckCircle, Clock, Plus, Settings, Loader2, ArrowRight, Search, Filter, TrendingUp, AlertCircle, Upload, Download } from 'lucide-react';
 import Modal from '../components/Modal';
 import Badge from '../components/common/Badge';
 import { ProductionTimeline } from '../components/production/ProductionTimeline';
@@ -22,6 +23,60 @@ const Production: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  const [isUploadingCSV, setIsUploadingCSV] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const token = await auth.currentUser?.getIdToken() || '';
+      const res = await fetch(`http://localhost:4000/api/production/template`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `production_runs_template.csv`;
+      a.click();
+    } catch (e) {
+      console.error(e);
+      alert('Failed to download template');
+    }
+  };
+
+  const handleUploadCsv = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile?.companyId) return;
+    
+    setIsUploadingCSV(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('companyId', profile.companyId);
+
+      const token = await auth.currentUser?.getIdToken() || '';
+      const res = await fetch(`http://localhost:4000/api/production/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to upload CSV');
+      }
+
+      alert(t(`Production runs uploaded successfully!`));
+      await refreshData();
+    } catch (e: any) {
+      console.error(e);
+      alert(e.message);
+    } finally {
+      setIsUploadingCSV(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const [form, setForm] = useState({
     factoryId: '',
@@ -133,13 +188,40 @@ const Production: React.FC = () => {
           <h2 className="text-4xl font-serif font-bold text-[var(--color-main)]">{t('Production')}</h2>
           <p className="text-[var(--color-text)]/40 mt-1">{t('Manufacturing schedules and factory output')}</p>
         </div>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center space-x-2 bg-[var(--color-main)] text-white px-6 py-3 rounded-2xl shadow-lg hover:bg-[var(--color-main)]/90 transition-all w-full md:w-auto justify-center"
-        >
-          <Plus size={20} />
-          <span className="font-bold">{t('New Production Run')}</span>
-        </button>
+        <div className="flex items-center space-x-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+          <button 
+            onClick={handleDownloadTemplate}
+            className="flex items-center space-x-2 bg-[var(--color-bg)] border border-[var(--color-text)]/20 text-[var(--color-text)] px-4 py-3 rounded-2xl hover:bg-[var(--color-text)]/5 transition-all whitespace-nowrap"
+            title={t('Download CSV Template')}
+          >
+            <Download size={18} />
+            <span className="font-bold text-sm hidden md:inline">{t('Template')}</span>
+          </button>
+          
+          <input 
+            type="file" 
+            accept=".csv" 
+            className="hidden" 
+            ref={fileInputRef} 
+            onChange={handleUploadCsv} 
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploadingCSV}
+            className="flex items-center space-x-2 bg-[var(--color-surface)] border border-[var(--color-main)]/30 text-[var(--color-main)] px-4 py-3 rounded-2xl hover:bg-[var(--color-main)]/10 transition-all disabled:opacity-50 whitespace-nowrap"
+          >
+            {isUploadingCSV ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+            <span className="font-bold text-sm hidden md:inline">{isUploadingCSV ? t('Uploading...') : t('Upload CSV')}</span>
+          </button>
+
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center space-x-2 bg-[var(--color-main)] text-white px-6 py-3 rounded-2xl shadow-lg hover:bg-[var(--color-main)]/90 transition-all justify-center whitespace-nowrap"
+          >
+            <Plus size={20} />
+            <span className="font-bold hidden md:inline">{t('New Production Run')}</span>
+          </button>
+        </div>
       </header>
 
       {/* Main Layout */}
