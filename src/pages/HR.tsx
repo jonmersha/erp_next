@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { useHRData } from '../hooks/useHRData';
 import { createEmployee, updateEmployee, createDepartment, updateDepartment, deleteDepartment, logAttendance, applyLeave, updateLeaveStatus } from '../services/hrService';
 import { useAuth } from '../context/AuthContext';
+import { auth } from '../firebase';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
-import { Users, UserPlus, Search, Briefcase, Mail, DollarSign, Loader2, XCircle, Edit2, Network, FolderTree, Plus, ZoomIn, ZoomOut, Maximize, LayoutGrid, List, Clock, CalendarRange, Check, X } from 'lucide-react';
+import { Users, UserPlus, Search, Briefcase, Mail, DollarSign, Loader2, XCircle, Edit2, Network, FolderTree, Plus, ZoomIn, ZoomOut, Maximize, LayoutGrid, List, Clock, CalendarRange, Check, X, Upload, Download } from 'lucide-react';
 import Modal from '../components/Modal';
 import StatsCard from '../components/common/StatsCard';
 
@@ -101,6 +102,60 @@ const HR: React.FC = () => {
     parentDepartmentId: '',
     managerId: ''
   });
+
+  const [isUploadingCSV, setIsUploadingCSV] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const token = await auth.currentUser?.getIdToken() || '';
+      const res = await fetch(`http://localhost:4000/api/employees/template`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `employees_template.csv`;
+      a.click();
+    } catch (e) {
+      console.error(e);
+      alert('Failed to download template');
+    }
+  };
+
+  const handleUploadCsv = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile?.companyId) return;
+    
+    setIsUploadingCSV(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('companyId', profile.companyId);
+
+      const token = await auth.currentUser?.getIdToken() || '';
+      const res = await fetch(`http://localhost:4000/api/employees/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to upload CSV');
+      }
+
+      alert(t(`Employees uploaded successfully!`));
+      window.location.reload(); // Refresh to pull new data via hook
+    } catch (e: any) {
+      console.error(e);
+      alert(e.message);
+    } finally {
+      setIsUploadingCSV(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   // Attendance State
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
@@ -357,7 +412,36 @@ const HR: React.FC = () => {
           <h2 className="text-4xl font-serif font-bold text-[var(--color-main)]">{t('Human Resources')}</h2>
           <p className="text-[var(--color-text)]/40 mt-1">{t('Manage workforce and organizational structure')}</p>
         </div>
-        <div className="flex space-x-4">
+        <div className="flex items-center space-x-3">
+          {activeTab === 'directory' && (
+            <>
+              <button 
+                onClick={handleDownloadTemplate}
+                className="flex items-center space-x-2 bg-[var(--color-bg)] border border-[var(--color-text)]/20 text-[var(--color-text)] px-4 py-3 rounded-2xl hover:bg-[var(--color-text)]/5 transition-all"
+                title={t('Download CSV Template')}
+              >
+                <Download size={18} />
+                <span className="font-bold text-sm hidden md:inline">{t('Template')}</span>
+              </button>
+              
+              <input 
+                type="file" 
+                accept=".csv" 
+                className="hidden" 
+                ref={fileInputRef} 
+                onChange={handleUploadCsv} 
+              />
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingCSV}
+                className="flex items-center space-x-2 bg-[var(--color-surface)] border border-[var(--color-main)]/30 text-[var(--color-main)] px-4 py-3 rounded-2xl hover:bg-[var(--color-main)]/10 transition-all disabled:opacity-50"
+              >
+                {isUploadingCSV ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+                <span className="font-bold text-sm hidden md:inline">{isUploadingCSV ? t('Uploading...') : t('Upload CSV')}</span>
+              </button>
+            </>
+          )}
+
           {activeTab === 'departments' ? (
             <button 
               onClick={() => {
@@ -371,7 +455,7 @@ const HR: React.FC = () => {
               <Briefcase size={20} />
               <span className="font-bold">{t('Add Department')}</span>
             </button>
-          ) : (
+          ) : activeTab === 'directory' ? (
             <button 
               onClick={() => {
                 setError(null);
@@ -387,7 +471,7 @@ const HR: React.FC = () => {
               <UserPlus size={20} />
               <span className="font-bold">{t('Add Employee')}</span>
             </button>
-          )}
+          ) : null}
         </div>
       </header>
 

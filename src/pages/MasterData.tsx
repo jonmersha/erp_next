@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Factory, Warehouse, Product, RawMaterial, Category } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { auth } from '../firebase';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { 
@@ -14,7 +15,9 @@ import {
   Loader2,
   ShieldAlert,
   Edit2,
-  Store
+  Store,
+  Upload,
+  Download
 } from 'lucide-react';
 import Modal from '../components/Modal';
 import { ImageUpload } from '../components/common/ImageUpload';
@@ -39,6 +42,9 @@ const MasterData: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [isUploadingCSV, setIsUploadingCSV] = useState(false);
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Form States
   const [factoryForm, setFactoryForm] = useState({ name: '', location: '', managerId: '' });
@@ -47,6 +53,59 @@ const MasterData: React.FC = () => {
   const [rawForm, setRawForm] = useState({ name: '', unit: 'kg' as RawMaterial['unit'] });
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '' });
   const [outletForm, setOutletForm] = useState({ name: '', location: '', factory_id: '' });
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const endpoint = activeTab === 'raw' ? 'rawMaterials' : 'products';
+      const token = await auth.currentUser?.getIdToken() || '';
+      const res = await fetch(`http://localhost:4000/api/${endpoint}/template`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${endpoint}_template.csv`;
+      a.click();
+    } catch (e) {
+      console.error(e);
+      alert('Failed to download template');
+    }
+  };
+
+  const handleUploadCsv = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile?.companyId) return;
+    
+    setIsUploadingCSV(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('companyId', profile.companyId);
+
+      const endpoint = activeTab === 'raw' ? 'rawMaterials' : 'products';
+      const token = await auth.currentUser?.getIdToken() || '';
+      const res = await fetch(`http://localhost:4000/api/${endpoint}/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to upload CSV');
+      }
+
+      alert(t(`${activeTab === 'raw' ? 'Raw Materials' : 'Products'} uploaded successfully!`));
+      fetchData();
+    } catch (e: any) {
+      console.error(e);
+      alert(e.message);
+    } finally {
+      setIsUploadingCSV(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const fetchData = async () => {
     if (!profile?.companyId) return;
@@ -188,15 +247,46 @@ const MasterData: React.FC = () => {
           <h2 className="text-4xl font-serif font-bold text-[var(--color-main)]">{t('Master Data')}</h2>
           <p className="text-[var(--color-text)]/40 mt-1">{t('Manage structural entities and product definitions')}</p>
         </div>
-        {canEdit && (
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center space-x-2 bg-[var(--color-main)] text-white px-6 py-3 rounded-2xl shadow-lg hover:bg-[var(--color-main)]/90 transition-all"
-          >
-            <Plus size={20} />
-            <span className="font-bold">{t('Add')} {t(activeTab === 'categories' ? 'Category' : activeTab === 'factories' ? 'Factory' : activeTab === 'warehouses' ? 'Warehouse' : activeTab === 'products' ? 'Product' : activeTab === 'outlets' ? 'Outlet' : 'Raw Material')}</span>
-          </button>
-        )}
+        <div className="flex items-center space-x-3">
+          {(activeTab === 'products' || activeTab === 'raw') && canEdit && (
+            <>
+              <button 
+                onClick={handleDownloadTemplate}
+                className="flex items-center space-x-2 bg-[var(--color-bg)] border border-[var(--color-text)]/20 text-[var(--color-text)] px-4 py-3 rounded-2xl hover:bg-[var(--color-text)]/5 transition-all"
+                title={t('Download CSV Template')}
+              >
+                <Download size={18} />
+                <span className="font-bold text-sm hidden md:inline">{t('Template')}</span>
+              </button>
+              
+              <input 
+                type="file" 
+                accept=".csv" 
+                className="hidden" 
+                ref={fileInputRef} 
+                onChange={handleUploadCsv} 
+              />
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingCSV}
+                className="flex items-center space-x-2 bg-[var(--color-surface)] border border-[var(--color-main)]/30 text-[var(--color-main)] px-4 py-3 rounded-2xl hover:bg-[var(--color-main)]/10 transition-all disabled:opacity-50"
+              >
+                {isUploadingCSV ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+                <span className="font-bold text-sm hidden md:inline">{isUploadingCSV ? t('Uploading...') : t('Upload CSV')}</span>
+              </button>
+            </>
+          )}
+
+          {canEdit && (
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center space-x-2 bg-[var(--color-main)] text-white px-6 py-3 rounded-2xl shadow-lg hover:bg-[var(--color-main)]/90 transition-all"
+            >
+              <Plus size={20} />
+              <span className="font-bold">{t('Add')} {t(activeTab === 'categories' ? 'Category' : activeTab === 'factories' ? 'Factory' : activeTab === 'warehouses' ? 'Warehouse' : activeTab === 'products' ? 'Product' : activeTab === 'outlets' ? 'Outlet' : 'Raw Material')}</span>
+            </button>
+          )}
+        </div>
       </header>
 
       <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
