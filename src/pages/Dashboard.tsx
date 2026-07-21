@@ -323,7 +323,7 @@ const Dashboard: React.FC = () => {
             </div>
             <Package className="text-[var(--color-main)]" size={24} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {products.slice(0, 4).map(product => {
               const productInventory = inventory.filter(i => i.productId === product.id);
               const totalStock = productInventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
@@ -653,7 +653,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Customer Outlet')}</p>
                 <p className="font-bold text-[var(--color-text)]">{selectedOrder.outletName || t('Unknown Outlet')}</p>
@@ -706,7 +706,7 @@ const Dashboard: React.FC = () => {
       >
         {selectedRun && (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">{t('Run ID')}</p>
                 <p className="font-mono font-bold text-[var(--color-main)]">#{selectedRun.id.slice(0, 12)}</p>
@@ -762,7 +762,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">{t('Start Date')}</p>
                 <p className="font-medium text-[var(--color-text)]">{new Date(selectedRun.startDate).toLocaleDateString()}</p>

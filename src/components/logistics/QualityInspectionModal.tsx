@@ -95,7 +95,7 @@ const QualityInspectionModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, l
               </select>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-bold text-[var(--color-text)]/70">{t('Moisture %')}</label>
                 <input 

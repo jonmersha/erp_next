@@ -30,7 +30,7 @@ const Production: React.FC = () => {
   const handleDownloadTemplate = async () => {
     try {
       const token = await auth.currentUser?.getIdToken() || '';
-      const res = await fetch(`http://localhost:4000/api/production/template`, {
+      const res = await fetch(`http://192.168.8.163:4000/api/production/template`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const blob = await res.blob();
@@ -56,7 +56,7 @@ const Production: React.FC = () => {
       formData.append('companyId', profile.companyId);
 
       const token = await auth.currentUser?.getIdToken() || '';
-      const res = await fetch(`http://localhost:4000/api/production/upload`, {
+      const res = await fetch(`http://192.168.8.163:4000/api/production/upload`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
@@ -487,7 +487,7 @@ const Production: React.FC = () => {
       <Modal isOpen={!!selectedRun} onClose={() => setSelectedRun(null)} title={t("Production Run Details")}>
         {selectedRun && (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/20">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">{t('Run ID')}</p>
                 <p className="font-mono font-bold text-[var(--color-main)]">#{selectedRun.id.slice(0, 12)}</p>
@@ -570,7 +570,7 @@ const Production: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">{t('Start Date')}</p>
                 <p className="font-medium text-[var(--color-text)]">{new Date(selectedRun.startDate).toLocaleDateString()}</p>
@@ -654,7 +654,7 @@ const Production: React.FC = () => {
               ))}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Product')}</label>
               <select 
@@ -683,7 +683,7 @@ const Production: React.FC = () => {
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Target Volume / Quantity')}</label>
               <input 

@@ -115,7 +115,7 @@ export const ProductionTimeline: React.FC<Props> = ({ run, onStatusChange }) => 
                 </div>
                 
                 {isCompleted && (
-                  <div className="mt-2 p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/10 text-xs text-[var(--color-text)]/70 grid grid-cols-2 gap-2">
+                  <div className="mt-2 p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/10 text-xs text-[var(--color-text)]/70 grid grid-cols-1 md:grid-cols-2 gap-2">
                     {stage.actualTimeMinutes && (
                       <div>
                         <span className="font-bold">Time Taken:</span> {stage.actualTimeMinutes} mins
@@ -136,7 +136,7 @@ export const ProductionTimeline: React.FC<Props> = ({ run, onStatusChange }) => 
 
                 {isCurrent && (
                   <div className="mt-3 space-y-4 border-l-2 border-[var(--color-main)] pl-4 ml-2">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-3 gap-3 mt-3">
                       <input 
                         type="number" 
                         placeholder="Time Taken (mins)" 

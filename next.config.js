@@ -14,6 +14,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   turbopack: {},
+  experimental: {
+    allowedOrigins: ['192.168.8.163', 'localhost', '127.0.0.1'],
+  },
+  allowedDevOrigins: ['192.168.8.163', 'localhost', '127.0.0.1'],
   async headers() {
     return [
       {
@@ -29,10 +33,9 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      {
-        source: '/api/:path*',
-        destination: 'http://127.0.0.1:4000/api/:path*',
-      },
+      { source: '/api/users/:path*', destination: 'http://127.0.0.1:4001/api/users/:path*' },
+      { source: '/api/roles/:path*', destination: 'http://127.0.0.1:4001/api/roles/:path*' },
+      { source: '/api/:path*', destination: 'http://127.0.0.1:4000/api/:path*' }
     ];
   },
 };

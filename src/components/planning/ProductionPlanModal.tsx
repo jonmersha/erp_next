@@ -153,7 +153,7 @@ const ProductionPlanModal: React.FC<Props> = ({ isOpen, onClose, factories, prod
                   setForm({...form, quarterlyPlans: newQPlans, totalQuantity: newTotalQuantity});
                 }} className="w-20 p-1 rounded border border-[var(--color-text)]/10 bg-[var(--color-surface)]" disabled={isApproved} />
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 {(q.monthlyPlans || []).map((m, mIdx) => (
                   <input key={m.month} type="number" value={m.quantity} onChange={e => {
                     const newQPlans = (form.quarterlyPlans || []).map((qp, i) => {

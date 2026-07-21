@@ -408,7 +408,7 @@ const FleetManagement: React.FC = () => {
                 </select>
                 <p className="text-xs text-[var(--color-text)]/40 mt-1">Hold Ctrl/Cmd to select multiple</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-[var(--color-text)]/60 mb-2">{t('Start Date')}</label>
                   <input name="startDate" type="datetime-local" required defaultValue={formatDateTimeLocal(editRequestRecord?.startDate)} className="w-full bg-[var(--color-bg)] border border-[var(--color-text)]/10 rounded-xl px-4 py-3" />
@@ -472,7 +472,7 @@ const FleetManagement: React.FC = () => {
                 <label className="block text-sm font-bold text-[var(--color-text)]/60 mb-2">{t('Plate Number')}</label>
                 <input name="plateNumber" required defaultValue={editVehicleRecord?.plateNumber} className="w-full bg-[var(--color-bg)] border border-[var(--color-text)]/10 rounded-xl px-4 py-3" placeholder="e.g. ABC-1234" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-[var(--color-text)]/60 mb-2">{t('Make')}</label>
                   <input name="make" required defaultValue={editVehicleRecord?.make} className="w-full bg-[var(--color-bg)] border border-[var(--color-text)]/10 rounded-xl px-4 py-3" placeholder="e.g. Toyota" />
@@ -482,7 +482,7 @@ const FleetManagement: React.FC = () => {
                   <input name="model" required defaultValue={editVehicleRecord?.model} className="w-full bg-[var(--color-bg)] border border-[var(--color-text)]/10 rounded-xl px-4 py-3" placeholder="e.g. Hilux" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-[var(--color-text)]/60 mb-2">{t('Type')}</label>
                   <select name="type" required defaultValue={editVehicleRecord?.type} className="w-full bg-[var(--color-bg)] border border-[var(--color-text)]/10 rounded-xl px-4 py-3">
@@ -526,7 +526,7 @@ const FleetManagement: React.FC = () => {
                   ))}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-[var(--color-text)]/60 mb-2">{t('Type')}</label>
                   <select name="type" required defaultValue={editConsumptionRecord?.type} className="w-full bg-[var(--color-bg)] border border-[var(--color-text)]/10 rounded-xl px-4 py-3">

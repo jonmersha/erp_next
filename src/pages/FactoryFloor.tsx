@@ -180,7 +180,7 @@ const FactoryFloor: React.FC = () => {
 
             {activeTab === 'milling' ? (
               <>
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
                     <label className="block text-sm uppercase tracking-widest font-bold text-[var(--color-text)]/60">
                       Extraction Rate (%)
@@ -236,7 +236,7 @@ const FactoryFloor: React.FC = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-3">
                     <label className="block text-sm uppercase tracking-widest font-bold text-[var(--color-text)]/60">
                       Empty Sack Material (To Consume)

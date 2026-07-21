@@ -18,9 +18,11 @@
     "lucide-react": "^1.24.0",
     "motion": "^12.42.2",
     "next": "^16.2.10",
+    "oidc-client-ts": "^3.5.0",
     "react": "^18",
     "react-dom": "^18",
     "react-i18next": "^17.0.9",
+    "react-oidc-context": "^3.3.1",
     "recharts": "^3.9.2"
   },
   "devDependencies": {

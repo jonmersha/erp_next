@@ -18,7 +18,7 @@ const ProcurementPlanDetailsModal: React.FC<Props> = ({ isOpen, onClose, plan, m
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Details: ${material?.name || 'Raw Material'}`}>
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           {factory && <p><span className="font-bold">Factory:</span> {factory.name}</p>}
           <p><span className="font-bold">Total Quantity:</span> {(plan.totalQuantity || 0).toLocaleString()}</p>
           <p><span className="font-bold">Status:</span> <span className="capitalize">{plan.status}</span></p>
@@ -30,7 +30,7 @@ const ProcurementPlanDetailsModal: React.FC<Props> = ({ isOpen, onClose, plan, m
         {(plan.quarterlyPlans || []).map(q => (
           <div key={q.quarter} className="border-b border-black/20 pb-2">
             <p className="font-bold">{q.quarter}: {(q.quantity || 0).toLocaleString()} units</p>
-            <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
               {(q.monthlyPlans || []).map(m => (
                 <p key={m.month}>Month {m.month}: {(m.quantity || 0).toLocaleString()} units</p>
               ))}

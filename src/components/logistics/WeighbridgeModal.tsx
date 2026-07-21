@@ -89,7 +89,7 @@ const WeighbridgeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, purchas
 
             {!log ? (
               <>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-[var(--color-text)]/70">{t('Reference Type')}</label>
                     <select 
@@ -119,7 +119,7 @@ const WeighbridgeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, purchas
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-[var(--color-text)]/70">{t('Truck Plate')} *</label>
                     <input 

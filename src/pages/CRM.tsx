@@ -528,7 +528,7 @@ const CRM: React.FC = () => {
                   <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Name')}</label>
                   <input required type="text" value={customerForm.name} onChange={e => setCustomerForm({...customerForm, name: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Phone')}</label>
                     <input type="text" value={customerForm.phone} onChange={e => setCustomerForm({...customerForm, phone: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none" />
@@ -573,7 +573,7 @@ const CRM: React.FC = () => {
                     {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-2">{t('Type')}</label>
                     <select value={ticketForm.type} onChange={e => setTicketForm({...ticketForm, type: e.target.value})} className="w-full bg-[var(--color-text)]/5 border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-[var(--color-main)]/20 outline-none">

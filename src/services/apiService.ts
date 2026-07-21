@@ -8,15 +8,20 @@ export interface FetchOptions {
 }
 
 class ApiService {
-  private getBaseUrl() {
+  private getBaseUrl(endpoint: string = '') {
+    // Route auth methods to the auth-service on port 4001
+    if (endpoint.startsWith('users') || endpoint.startsWith('/users')) {
+      return process.env.NEXT_PUBLIC_AUTH_API_BASE_URL?.replace(/\/$/, '') || 'http://localhost:4001/api';
+    }
     return process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') || 'http://localhost:4000/api';
   }
 
   private async getHeaders(forceRefresh = false) {
-    let token = await auth.currentUser?.getIdToken(forceRefresh);
+    const firebaseToken = await auth.currentUser?.getIdToken(forceRefresh) || '';
+
     return {
       'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : '',
+      'Authorization': `Bearer ${firebaseToken}`
     };
   }
 
@@ -39,6 +44,8 @@ class ApiService {
           const parsed = JSON.parse(text);
           if (parsed.error) {
             errorMsg = parsed.error;
+            if (parsed.details) errorMsg += ` - ${parsed.details}`;
+            if (parsed.sqlMessage) errorMsg += ` - SQL: ${parsed.sqlMessage}`;
           }
         } catch(e) {}
         throw new Error(errorMsg);
@@ -52,7 +59,7 @@ class ApiService {
 
   async post<T>(endpoint: string, data: any): Promise<T> {
     const headers = await this.getHeaders();
-    return this.handleFetch(`${this.getBaseUrl()}/${endpoint}`, {
+    return this.handleFetch(`${this.getBaseUrl(endpoint)}/${endpoint}`, {
       method: 'POST',
       headers,
       body: JSON.stringify(data),
@@ -61,7 +68,7 @@ class ApiService {
 
   async get<T>(endpoint: string): Promise<T> {
     const headers = await this.getHeaders();
-    return this.handleFetch(`${this.getBaseUrl()}/${endpoint}`, {
+    return this.handleFetch(`${this.getBaseUrl(endpoint)}/${endpoint}`, {
       method: 'GET',
       headers,
     });
@@ -69,7 +76,7 @@ class ApiService {
 
   async put<T>(endpoint: string, data: any): Promise<T> {
     const headers = await this.getHeaders();
-    return this.handleFetch(`${this.getBaseUrl()}/${endpoint}`, {
+    return this.handleFetch(`${this.getBaseUrl(endpoint)}/${endpoint}`, {
       method: 'PUT',
       headers,
       body: JSON.stringify(data),
@@ -78,7 +85,7 @@ class ApiService {
 
   async delete<T>(endpoint: string): Promise<T> {
     const headers = await this.getHeaders();
-    return this.handleFetch(`${this.getBaseUrl()}/${endpoint}`, {
+    return this.handleFetch(`${this.getBaseUrl(endpoint)}/${endpoint}`, {
       method: 'DELETE',
       headers,
     });
@@ -86,7 +93,7 @@ class ApiService {
 
   async fetchCollection<T>(collectionName: string, companyId: string, options?: FetchOptions): Promise<T[]> {
     const headers = await this.getHeaders();
-    const url = `${this.getBaseUrl()}/${collectionName}?companyId=${companyId}`;
+    const url = `${this.getBaseUrl(collectionName)}/${collectionName}?companyId=${companyId}`;
     try {
       return await this.handleFetch(url, { headers });
     } catch (error) {
@@ -98,7 +105,7 @@ class ApiService {
   async addDocument(collectionName: string, data: any) {
     const headers = await this.getHeaders();
     try {
-      const response = await fetch(`${this.getBaseUrl()}/${collectionName}`, {
+      const response = await fetch(`${this.getBaseUrl(collectionName)}/${collectionName}`, {
         method: 'POST',
         headers,
         body: JSON.stringify(data),
@@ -112,7 +119,7 @@ class ApiService {
   async updateDocument(collectionName: string, docId: string, data: any) {
     const headers = await this.getHeaders();
     try {
-      const response = await fetch(`${this.getBaseUrl()}/${collectionName}/${docId}`, {
+      const response = await fetch(`${this.getBaseUrl(collectionName)}/${collectionName}/${docId}`, {
         method: 'PUT',
         headers,
         body: JSON.stringify(data),
@@ -126,7 +133,7 @@ class ApiService {
   async deleteDocument(collectionName: string, docId: string) {
     const headers = await this.getHeaders();
     try {
-      const response = await fetch(`${this.getBaseUrl()}/${collectionName}/${docId}`, {
+      const response = await fetch(`${this.getBaseUrl(collectionName)}/${collectionName}/${docId}`, {
         method: 'DELETE',
         headers,
       });
@@ -137,7 +144,21 @@ class ApiService {
   }
 
   async uploadFile(file: File): Promise<{ url: string }> {
-    const token = await auth.currentUser?.getIdToken();
+    let oidcTokenStr = null;
+    if (typeof window !== 'undefined') {
+      try {
+        const oidcStorageStr = localStorage.getItem('oidc.user:http://localhost:4001/oidc:sheger-erp-frontend');
+        if (oidcStorageStr) {
+          const oidcUser = JSON.parse(oidcStorageStr);
+          oidcTokenStr = oidcUser.access_token;
+        }
+      } catch (e) {}
+    }
+    let firebaseToken = '';
+    if (!oidcTokenStr) {
+      firebaseToken = await auth.currentUser?.getIdToken() || '';
+    }
+    const token = oidcTokenStr || firebaseToken;
     const formData = new FormData();
     formData.append('image', file);
 

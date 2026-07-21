@@ -1,21 +1,20 @@
 "use client";
-import React, { useState } from 'react';
-import { signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { apiService } from '../services/apiService';
 import { seedDatabase } from '../utils/seedData';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogIn, ShieldCheck, Building2, Plus, Users, ArrowRight, MapPin, Phone, Mail, Image as ImageIcon } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '../firebase';
 
 const Login: React.FC = () => {
-  const { user, profile, loading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
-  const router = useRouter();
+  const { user, profile, loading: authLoading, loginWithOidc } = useAuth();
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
+  const router = useRouter();
   const setupInProgress = React.useRef(false);
 
   React.useEffect(() => {
@@ -24,7 +23,6 @@ const Login: React.FC = () => {
         if (profile?.companyId) {
           router.push('/');
         } else {
-          // Instead of showing the UI, automatically set up the default company
           if (!setupInProgress.current) {
             setupInProgress.current = true;
             await autoSetupDefaultCompany(user);
@@ -39,11 +37,12 @@ const Login: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      // Find default company, or create it if it doesn't exist
       const companies = await apiService.get<any[]>('companies');
       let defaultCompany = companies && companies.length > 0 ? companies[0] : null;
       let finalCompanyId = '';
       let isNewCompany = false;
+
+      const uid = currentUser.profile ? currentUser.profile.sub : currentUser.uid;
 
       if (!defaultCompany) {
         const companyData = {
@@ -52,7 +51,7 @@ const Login: React.FC = () => {
           phone: '',
           email: '',
           logoUrl: '',
-          ownerId: currentUser.uid,
+          ownerId: uid,
         };
         const createdCompany = await apiService.post<any>('companies', companyData);
         finalCompanyId = createdCompany.id || createdCompany._id;
@@ -61,13 +60,18 @@ const Login: React.FC = () => {
         finalCompanyId = defaultCompany.id || defaultCompany._id;
       }
 
+      const email = (currentUser.profile && currentUser.profile.email) || currentUser.email || 'user@example.com';
+      const name = (currentUser.profile && currentUser.profile.name) || currentUser.displayName || email.split('@')[0];
+
       const profileData = {
-        uid: currentUser.uid,
-        email: currentUser.email,
-        name: currentUser.displayName || 'User',
-        roles: isNewCompany ? ['admin'] : [], 
+        uid: uid,
+        email: email,
+        name: name,
+        roles: ['admin'], // Temporarily grant admin to everyone for testing
         companyId: finalCompanyId,
       };
+
+      console.log('Sending profile data:', profileData);
 
       await apiService.post('users', profileData);
 
@@ -93,29 +97,12 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      // AuthContext will automatically trigger the profile fetch
+      await signInWithPopup(auth, provider);
     } catch (err: any) {
-      console.error("Login error details:", err);
-      if (err.code === 'auth/popup-closed-by-user') {
-        setError(null);
-      } else {
-        setError(err.message || 'Failed to login. Please check your browser console for details.');
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError(err.message || 'Failed to login with Google.');
       }
-    } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      setTempUser(null);
-      setStep('login');
-      setError(null);
-    } catch (err: any) {
-      console.error("Sign out error:", err);
-      setError("Failed to sign out.");
     }
   };
 
@@ -134,7 +121,7 @@ const Login: React.FC = () => {
               <ShieldCheck className="text-white" size={32} />
             </div>
             <h1 className="text-3xl font-light text-[var(--color-text)]">Sheger ERP</h1>
-            <p className="text-[var(--color-text)]/60 mt-2 text-sm">Enterprise Identity Provider</p>
+            <p className="text-[var(--color-text)]/60 mt-2 text-sm">Enterprise Service Portal</p>
           </div>
 
           {error && (
@@ -143,24 +130,21 @@ const Login: React.FC = () => {
             </div>
           )}
 
-          <button
-            onClick={handleGoogleLogin}
-            disabled={loading}
-            className="w-full flex items-center justify-center space-x-3 bg-white dark:bg-[var(--color-surface)] border border-[var(--color-border)] hover:bg-[var(--color-bg)] p-3 rounded-sm transition-colors duration-200 group disabled:opacity-50"
-          >
-            {loading ? (
-              <div className="w-5 h-5 border-2 border-[var(--color-main)] border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <>
-                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
-                <span className="text-sm font-medium text-[var(--color-text)] group-hover:text-[var(--color-main)]">Sign in with Google</span>
-              </>
-            )}
-          </button>
+          <div className="space-y-4">
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+              className="w-full flex items-center justify-center space-x-3 bg-white dark:bg-[var(--color-surface)] border border-[var(--color-border)] hover:bg-[var(--color-bg)] p-3 rounded-sm transition-colors duration-200 group disabled:opacity-50"
+            >
+              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
+              <span className="text-sm font-medium text-[var(--color-text)] group-hover:text-[var(--color-main)]">Sign in with Google</span>
+            </button>
+          </div>
 
           <div className="mt-10 pt-6 border-t border-[var(--color-border)] text-center">
             <p className="text-xs text-[var(--color-text)]/40 uppercase tracking-widest font-normal">
-              SAP Fiori Experience
+              Secured by OIDC
             </p>
           </div>
         </motion.div>

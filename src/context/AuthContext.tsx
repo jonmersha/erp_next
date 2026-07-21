@@ -1,12 +1,12 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '../firebase';
+import { onAuthStateChanged, User as FirebaseUser, signOut } from 'firebase/auth';
+import { auth as firebaseAuth } from '../firebase';
 import { apiService } from '../services/apiService';
 import { UserProfile, Company, Role } from '../types';
 
-interface AuthContextType {
-  user: User | null;
+interface AppAuthContextType {
+  user: FirebaseUser | null;
   profile: UserProfile | null;
   company: Company | null;
   systemRoles: Role[];
@@ -14,9 +14,10 @@ interface AuthContextType {
   isAdmin: boolean;
   hasRole: (role: string) => boolean;
   can: (action: string, module: string) => boolean;
+  logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType>({
+const AppAuthContext = createContext<AppAuthContextType>({
   user: null,
   profile: null,
   company: null,
@@ -25,85 +26,87 @@ const AuthContext = createContext<AuthContextType>({
   isAdmin: false,
   hasRole: () => false,
   can: () => false,
+  logout: async () => {},
 });
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AppAuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
   const [systemRoles, setSystemRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Monitor Firebase state
   useEffect(() => {
-    console.log('AuthContext: mounting');
-    const timer = setTimeout(() => {
-      console.log('Auth loading timed out after 10s, forcing loading=false');
-      setLoading(false);
-    }, 10000); // 10 seconds safety timeout
-
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log('AuthContext: onAuthStateChanged', user ? `user:${user.uid}` : 'no user');
-      setUser(user);
-      
-      if (user) {
-        console.log('User signed in. Fetching profile/company from backend.');
-        try {
-          // Add a check to fetch profile only if user exists
-          const profileData = await apiService.get<UserProfile>(`users/${user.uid}`);
-          console.log('AuthContext: Profile received', profileData);
-          if (profileData) {
-            if (profileData.status === 'inactive') {
-              alert('Your account has been deactivated. Please contact your administrator.');
-              import('firebase/auth').then(({ signOut }) => signOut(auth));
-              setUser(null);
-              setProfile(null);
-              setCompany(null);
-              setLoading(false);
-              return;
-            }
-            
-            setProfile(profileData);
-
-            if (profileData.companyId) {
-              console.log('AuthContext: Fetching company', profileData.companyId);
-              try {
-                const companyData = await apiService.get<Company>(`companies/${profileData.companyId}`);
-                console.log('AuthContext: Company received', companyData);
-                setCompany(companyData);
-                
-                const rolesData = await apiService.get<Role[]>(`roles?companyId=${profileData.companyId}`);
-                if (rolesData) setSystemRoles(rolesData);
-              } catch (compErr) {
-                console.error("AuthContext: Failed to fetch company/roles", compErr);
-              }
-            }
-          }
-        } catch (e) {
-          console.error("AuthContext: Failed to fetch profile/company", e);
-        }
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (firebaseUser) => {
+      setUser(firebaseUser);
+      if (firebaseUser) {
+        // Token is handled dynamically by apiService
       } else {
-        console.log('No user signed in');
         setProfile(null);
         setCompany(null);
-        setSystemRoles([]);
+        setLoading(false);
       }
-      setLoading(false);
-      clearTimeout(timer);
     });
-
-    return () => {
-      unsubscribe();
-      clearTimeout(timer);
-    };
+    return () => unsubscribe();
   }, []);
 
-  const isAdmin = profile?.roles?.includes('admin') || user?.email === 'jonmersha@gmail.com';
+  // When user changes, fetch the profile
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (user && !profile) {
+        try {
+          const uid = user.uid;
+          if (!uid) return;
 
-  const hasRole = (role: string) => {
+          const profileData = await apiService.get<UserProfile>(`users/${uid}`);
+          if (profileData) {
+             if (profileData.status === 'inactive') {
+               alert('Your account has been deactivated. Please contact your administrator.');
+               await logout();
+               return;
+             }
+             setProfile(profileData);
+             if (profileData.companyId) {
+                const companyData = await apiService.get<Company>(`companies/${profileData.companyId}`);
+                setCompany(companyData);
+             }
+          }
+        } catch (error) {
+          console.error("Failed to fetch profile or company:", error);
+          alert('Authentication service is currently unavailable. Please try again later.');
+          await logout();
+        }
+      }
+      setLoading(false);
+    };
+
+    if (user) {
+      fetchProfileData();
+    }
+  }, [user, profile]);
+
+  useEffect(() => {
+    const fetchSystemRoles = async () => {
+      if (profile && profile.companyId) {
+        try {
+           const roles = await apiService.get<Role[]>(`roles?companyId=${profile.companyId}`);
+           setSystemRoles(roles);
+        } catch (err) {
+          console.error("Failed to fetch roles", err);
+        }
+      }
+    };
+    fetchSystemRoles();
+  }, [profile]);
+
+  const isAdmin = profile?.roles?.includes('admin') || false;
+
+  const hasRole = (roleName: string) => {
     if (isAdmin) return true;
-    return profile?.roles?.includes(role as any) || false;
+    return profile?.roles?.includes(roleName) || false;
   };
 
   const can = (action: string, module: string) => {
@@ -121,9 +124,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
+  const logout = async () => {
+    try {
+      await signOut(firebaseAuth);
+      // apiService.setToken(null);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, company, systemRoles, loading, isAdmin, hasRole, can }}>
+    <AppAuthContext.Provider value={{
+      user,
+      profile,
+      company,
+      systemRoles,
+      loading,
+      isAdmin,
+      hasRole,
+      can,
+      logout,
+    }}>
       {children}
-    </AuthContext.Provider>
+    </AppAuthContext.Provider>
   );
 };

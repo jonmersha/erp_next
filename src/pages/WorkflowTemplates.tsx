@@ -329,7 +329,7 @@ export const WorkflowTemplates: React.FC = () => {
                   />
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-[10px] uppercase font-bold text-[var(--color-text)]/40">{t('Est. Time (mins)')}</label>
                     <input 
@@ -374,7 +374,7 @@ export const WorkflowTemplates: React.FC = () => {
       <Modal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} title={t('Template Details')}>
         {detailTemplate && (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-[var(--color-bg)] rounded-2xl border border-[var(--color-text)]/10">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-[var(--color-text)]/40 mb-1">{t('Company')}</p>
                 <p className="font-bold text-[var(--color-text)]">{detailTemplate.companyId || 'N/A'}</p>

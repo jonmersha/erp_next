@@ -402,7 +402,7 @@ const Procurement: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-8 py-4 text-right flex justify-end space-x-2">
-                      {supplier.status === 'pending_approval' && profile?.uid !== supplier.createdBy && ['admin', 'factory_manager'].includes(profile?.role || '') && (
+                      {supplier.status === 'pending_approval' && profile?.uid !== (supplier.createdBy || supplier.created_by) && ['admin', 'factory_manager'].includes(profile?.role || '') && (
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleApproveSupplier(supplier.id); }}
                           className="p-2 text-[var(--color-main)] hover:bg-[var(--color-main)]/10 rounded-lg transition-all"

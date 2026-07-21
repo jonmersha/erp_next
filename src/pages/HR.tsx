@@ -109,7 +109,7 @@ const HR: React.FC = () => {
   const handleDownloadTemplate = async () => {
     try {
       const token = await auth.currentUser?.getIdToken() || '';
-      const res = await fetch(`http://localhost:4000/api/employees/template`, {
+      const res = await fetch(`http://192.168.8.163:4000/api/employees/template`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const blob = await res.blob();
@@ -135,7 +135,7 @@ const HR: React.FC = () => {
       formData.append('companyId', profile.companyId);
 
       const token = await auth.currentUser?.getIdToken() || '';
-      const res = await fetch(`http://localhost:4000/api/employees/upload`, {
+      const res = await fetch(`http://192.168.8.163:4000/api/employees/upload`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
@@ -898,7 +898,7 @@ const HR: React.FC = () => {
             <label className="text-xs font-bold text-black/40 uppercase tracking-widest">{t('Full Name')}</label>
             <input type="text" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Department')}</label>
               <select required value={form.departmentId} onChange={e => setForm({ ...form, departmentId: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
@@ -911,7 +911,7 @@ const HR: React.FC = () => {
               <input type="text" required value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Email')}</label>
               <input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
@@ -924,7 +924,7 @@ const HR: React.FC = () => {
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Salary')}</label>
               <input type="number" required min="0" value={form.salary} onChange={e => setForm({ ...form, salary: parseInt(e.target.value) || 0 })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
@@ -951,7 +951,7 @@ const HR: React.FC = () => {
             <label className="text-xs font-bold text-black/40 uppercase tracking-widest">{t('Description')}</label>
             <textarea value={deptForm.description} onChange={e => setDeptForm({ ...deptForm, description: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Parent Department')}</label>
               <select value={deptForm.parentDepartmentId} onChange={e => setDeptForm({ ...deptForm, parentDepartmentId: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
@@ -1007,7 +1007,7 @@ const HR: React.FC = () => {
             </div>
             <input type="date" required value={attendanceForm.date} onChange={e => setAttendanceForm({ ...attendanceForm, date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Clock In')}</label>
               <input type="datetime-local" value={attendanceForm.clock_in} onChange={e => setAttendanceForm({ ...attendanceForm, clock_in: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
@@ -1017,7 +1017,7 @@ const HR: React.FC = () => {
               <input type="datetime-local" value={attendanceForm.clock_out} onChange={e => setAttendanceForm({ ...attendanceForm, clock_out: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Status')}</label>
               <select required value={attendanceForm.status} onChange={e => setAttendanceForm({ ...attendanceForm, status: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20">
@@ -1048,7 +1048,7 @@ const HR: React.FC = () => {
               {employees.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Start Date')}</label>
               <input type="date" required value={leaveForm.start_date} onChange={e => setLeaveForm({ ...leaveForm, start_date: e.target.value })} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-main)]/20" />

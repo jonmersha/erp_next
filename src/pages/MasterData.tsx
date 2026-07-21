@@ -58,7 +58,7 @@ const MasterData: React.FC = () => {
     try {
       const endpoint = activeTab === 'raw' ? 'rawMaterials' : 'products';
       const token = await auth.currentUser?.getIdToken() || '';
-      const res = await fetch(`http://localhost:4000/api/${endpoint}/template`, {
+      const res = await fetch(`http://192.168.8.163:4000/api/${endpoint}/template`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const blob = await res.blob();
@@ -85,7 +85,7 @@ const MasterData: React.FC = () => {
 
       const endpoint = activeTab === 'raw' ? 'rawMaterials' : 'products';
       const token = await auth.currentUser?.getIdToken() || '';
-      const res = await fetch(`http://localhost:4000/api/${endpoint}/upload`, {
+      const res = await fetch(`http://192.168.8.163:4000/api/${endpoint}/upload`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
@@ -467,7 +467,7 @@ const MasterData: React.FC = () => {
                 <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Product Name')}</label>
                 <input required value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Category')}</label>
                   <select required value={productForm.categoryId} onChange={e => setProductForm({...productForm, categoryId: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]">
@@ -480,7 +480,7 @@ const MasterData: React.FC = () => {
                   <input type="number" required value={productForm.price} onChange={e => setProductForm({...productForm, price: e.target.value === '' ? 0 : Number(e.target.value)})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest">{t('Package Size')}</label>
                   <input required value={productForm.packageSize} onChange={e => setProductForm({...productForm, packageSize: e.target.value})} className="w-full p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-text)]/20 text-[var(--color-text)]" placeholder={t('e.g. 500ml, 1kg')} />

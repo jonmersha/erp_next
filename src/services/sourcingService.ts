@@ -1,6 +1,6 @@
 import { auth } from '../firebase';
 
-const API_URL = 'http://localhost:4000/api';
+const API_URL = 'http://192.168.8.163:4000/api';
 
 const getHeaders = async () => {
   const token = await auth.currentUser?.getIdToken();

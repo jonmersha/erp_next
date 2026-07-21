@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 
 const downloadFile = async (endpoint: string, filename: string) => {
   const token = await getAuth().currentUser?.getIdToken();
-  const res = await fetch(`http://localhost:4000/api/${endpoint}`, {
+  const res = await fetch(`http://192.168.8.163:4000/api/${endpoint}`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -27,7 +27,7 @@ const uploadFile = async (endpoint: string, file: File) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const res = await fetch(`http://localhost:4000/api/${endpoint}`, {
+  const res = await fetch(`http://192.168.8.163:4000/api/${endpoint}`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`

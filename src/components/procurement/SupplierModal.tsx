@@ -51,7 +51,7 @@ const SupplierModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, supplier }
         email: '',
         certificate_url: '',
         is_authorized: false,
-        status: 'inactive',
+        status: 'pending_approval',
         category: '',
         risk_rating: 3,
         payment_terms: '',
@@ -80,14 +80,19 @@ const SupplierModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, supplier }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={supplier ? 'Edit Supplier' : 'New Supplier'}>
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={supplier ? "Edit Supplier" : "Register New Supplier"}
+      helpText="Register a new supplier. By default, newly created suppliers require authorization from a Factory Manager or Admin before they become active."
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-1">Supplier Name</label>
           <input 
             type="text" 
             required 
-            className="w-full p-3 rounded-xl border border-[var(--color-text)]/10 bg-[var(--color-bg)]"
+            className="w-full p-3 rounded-xl border border-[var(--color-text)]/20 bg-black/5 focus:outline-none focus:border-[var(--color-main)] focus:ring-1 focus:ring-[var(--color-main)]"
             value={form.name}
             onChange={e => setForm({...form, name: e.target.value})}
           />
@@ -97,7 +102,7 @@ const SupplierModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, supplier }
           <input 
             type="text" 
             required 
-            className="w-full p-3 rounded-xl border border-[var(--color-text)]/10 bg-[var(--color-bg)]"
+            className="w-full p-3 rounded-xl border border-[var(--color-text)]/20 bg-black/5 focus:outline-none focus:border-[var(--color-main)] focus:ring-1 focus:ring-[var(--color-main)]"
             value={form.contact}
             onChange={e => setForm({...form, contact: e.target.value})}
           />
@@ -106,7 +111,7 @@ const SupplierModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, supplier }
           <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-1">Email</label>
           <input 
             type="email" 
-            className="w-full p-3 rounded-xl border border-[var(--color-text)]/10 bg-[var(--color-bg)]"
+            className="w-full p-3 rounded-xl border border-[var(--color-text)]/20 bg-black/5 focus:outline-none focus:border-[var(--color-main)] focus:ring-1 focus:ring-[var(--color-main)]"
             value={form.email}
             onChange={e => setForm({...form, email: e.target.value})}
           />
@@ -116,19 +121,19 @@ const SupplierModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, supplier }
           <input 
             type="url" 
             placeholder="https://..."
-            className="w-full p-3 rounded-xl border border-[var(--color-text)]/10 bg-[var(--color-bg)]"
+            className="w-full p-3 rounded-xl border border-[var(--color-text)]/20 bg-black/5 focus:outline-none focus:border-[var(--color-main)] focus:ring-1 focus:ring-[var(--color-main)]"
             value={form.certificate_url}
             onChange={e => setForm({...form, certificate_url: e.target.value})}
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-1">Category</label>
             <input 
               type="text" 
               placeholder="e.g. Raw Materials"
-              className="w-full p-3 rounded-xl border border-[var(--color-text)]/10 bg-[var(--color-bg)]"
+              className="w-full p-3 rounded-xl border border-[var(--color-text)]/20 bg-black/5 focus:outline-none focus:border-[var(--color-main)] focus:ring-1 focus:ring-[var(--color-main)]"
               value={form.category}
               onChange={e => setForm({...form, category: e.target.value})}
             />
@@ -138,7 +143,7 @@ const SupplierModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, supplier }
             <input 
               type="number" 
               min="1" max="5"
-              className="w-full p-3 rounded-xl border border-[var(--color-text)]/10 bg-[var(--color-bg)]"
+              className="w-full p-3 rounded-xl border border-[var(--color-text)]/20 bg-black/5 focus:outline-none focus:border-[var(--color-main)] focus:ring-1 focus:ring-[var(--color-main)]"
               value={form.risk_rating}
               onChange={e => setForm({...form, risk_rating: Number(e.target.value)})}
             />
@@ -148,7 +153,7 @@ const SupplierModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, supplier }
             <input 
               type="text" 
               placeholder="e.g. Net 30"
-              className="w-full p-3 rounded-xl border border-[var(--color-text)]/10 bg-[var(--color-bg)]"
+              className="w-full p-3 rounded-xl border border-[var(--color-text)]/20 bg-black/5 focus:outline-none focus:border-[var(--color-main)] focus:ring-1 focus:ring-[var(--color-main)]"
               value={form.payment_terms}
               onChange={e => setForm({...form, payment_terms: e.target.value})}
             />
@@ -157,7 +162,7 @@ const SupplierModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, supplier }
             <label className="block text-xs font-bold text-[var(--color-text)]/40 uppercase tracking-widest mb-1">Tax ID</label>
             <input 
               type="text" 
-              className="w-full p-3 rounded-xl border border-[var(--color-text)]/10 bg-[var(--color-bg)]"
+              className="w-full p-3 rounded-xl border border-[var(--color-text)]/20 bg-black/5 focus:outline-none focus:border-[var(--color-main)] focus:ring-1 focus:ring-[var(--color-main)]"
               value={form.tax_id}
               onChange={e => setForm({...form, tax_id: e.target.value})}
             />
@@ -169,32 +174,34 @@ const SupplierModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, supplier }
           <input 
             type="text" 
             placeholder="IBAN / Account No"
-            className="w-full p-3 rounded-xl border border-[var(--color-text)]/10 bg-[var(--color-bg)]"
+            className="w-full p-3 rounded-xl border border-[var(--color-text)]/20 bg-black/5 focus:outline-none focus:border-[var(--color-main)] focus:ring-1 focus:ring-[var(--color-main)]"
             value={form.bank_account}
             onChange={e => setForm({...form, bank_account: e.target.value})}
           />
         </div>
 
-        <div className="flex space-x-6 pt-2">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input 
-              type="checkbox" 
-              className="form-checkbox text-[var(--color-main)] rounded"
-              checked={form.is_authorized}
-              onChange={e => setForm({...form, is_authorized: e.target.checked})}
-            />
-            <span className="text-sm font-bold text-[var(--color-text)]">Authorized</span>
-          </label>
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input 
-              type="checkbox" 
-              className="form-checkbox text-[var(--color-main)] rounded"
-              checked={form.status === 'active'}
-              onChange={e => setForm({...form, status: e.target.checked ? 'active' : 'inactive'})}
-            />
-            <span className="text-sm font-bold text-[var(--color-text)]">Active</span>
-          </label>
-        </div>
+        {supplier && supplier.status !== 'pending_approval' && (
+          <div className="flex space-x-6 pt-2">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                className="form-checkbox text-[var(--color-main)] rounded"
+                checked={form.is_authorized}
+                onChange={e => setForm({...form, is_authorized: e.target.checked})}
+              />
+              <span className="text-sm font-bold text-[var(--color-text)]">Authorized</span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                className="form-checkbox text-[var(--color-main)] rounded"
+                checked={form.status === 'active'}
+                onChange={e => setForm({...form, status: e.target.checked ? 'active' : 'inactive'})}
+              />
+              <span className="text-sm font-bold text-[var(--color-text)]">Active</span>
+            </label>
+          </div>
+        )}
         <button 
           type="submit" 
           disabled={loading}
