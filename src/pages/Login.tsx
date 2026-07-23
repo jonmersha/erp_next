@@ -63,17 +63,26 @@ const Login: React.FC = () => {
       const email = (currentUser.profile && currentUser.profile.email) || currentUser.email || 'user@example.com';
       const name = (currentUser.profile && currentUser.profile.name) || currentUser.displayName || email.split('@')[0];
 
-      const profileData = {
-        uid: uid,
+      // 1. Register identity in auth-service (only handles name/status)
+      const authData = {
+        name: name,
+        status: 'active',
+        system: 'Web-ERP'
+      };
+      
+      console.log('Registering identity with auth-service:', authData);
+      await apiService.post('users', authData);
+
+      // 2. Register ERP-specific profile in main backend (handles company & roles)
+      const erpProfileData = {
         email: email,
         name: name,
         roles: ['admin'], // Temporarily grant admin to everyone for testing
         companyId: finalCompanyId,
       };
 
-      console.log('Sending profile data:', profileData);
-
-      await apiService.post('users', profileData);
+      console.log('Registering ERP profile with main backend:', erpProfileData);
+      await apiService.post('erp-users', erpProfileData);
 
       if (isNewCompany) {
         try {
