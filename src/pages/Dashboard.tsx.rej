@@ -1,0 +1,8 @@
+@@ -43,6 +43,7 @@
+   Pie,
+   Cell
+ } from 'recharts';
++import PendingApprovalsWidget from '../components/dashboard/PendingApprovalsWidget';
+ 
+ const COLORS = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6'];
+ 
