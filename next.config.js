@@ -10,11 +10,12 @@ const withPWA = withPWAInit({
 
 const AUTH_API_BASE = 'https://auth.besheger.com';
 const MAIN_API_BASE = 'https://milkitest.besheger.com';
+
 // const AUTH_API_BASE = 'http://localhost:4001';
 // const MAIN_API_BASE = 'http://localhost:4000';
 
 const nextConfig = {
-  output: 'standalone',
+  // output: 'standalone', // Only enable for Docker/containerized deployments
   typescript: {
     ignoreBuildErrors: true,
   },
