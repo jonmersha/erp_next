@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, TestTube, AlertCircle } from 'lucide-react';
 import { WeighbridgeLog } from '../types';
@@ -11,7 +11,7 @@ interface Props {
   onClose: () => void;
   onSuccess: () => void;
   logs: WeighbridgeLog[];
-  defaultLogId?: string; // Pre-select this log when opened from lifecycle tracker
+  defaultLogId?: string;
 }
 
 const QualityInspectionModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, logs, defaultLogId }) => {
@@ -29,6 +29,22 @@ const QualityInspectionModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, l
     notes: ''
   });
 
+  // Reset form and pre-select log when opened fresh from tracker
+  useEffect(() => {
+    if (isOpen) {
+      setError('');
+      setForm({
+        weighbridge_log_id: defaultLogId || '',
+        moisture: '',
+        protein: '',
+        ash: '',
+        gluten: '',
+        status: 'Pending',
+        notes: ''
+      });
+    }
+  }, [isOpen, defaultLogId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -39,7 +55,8 @@ const QualityInspectionModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, l
       onSuccess();
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to save quality inspection');
+      // apiService throws a plain Error with .message (not Axios-style err.response)
+      setError(err.message || 'Failed to save quality inspection');
     } finally {
       setLoading(false);
     }

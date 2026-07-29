@@ -15,8 +15,23 @@ export const updateWeighbridgeLogOut = async (id: string, logForm: any) => {
 export const createQualityInspection = async (qiForm: any, profile: UserProfile | null) => {
   return await apiService.post('qualityInspections', {
     ...qiForm,
+    // Normalize empty strings to null for numeric fields
+    moisture: qiForm.moisture !== '' ? qiForm.moisture : null,
+    protein:  qiForm.protein  !== '' ? qiForm.protein  : null,
+    ash:      qiForm.ash      !== '' ? qiForm.ash      : null,
+    gluten:   qiForm.gluten   !== '' ? qiForm.gluten   : null,
     inspector_id: profile?.uid,
     company_id: profile?.companyId || ''
+  });
+};
+
+export const updateQualityInspection = async (id: string, qiForm: any) => {
+  return await apiService.put(`qualityInspections/${id}`, {
+    ...qiForm,
+    moisture: qiForm.moisture !== '' ? qiForm.moisture : null,
+    protein:  qiForm.protein  !== '' ? qiForm.protein  : null,
+    ash:      qiForm.ash      !== '' ? qiForm.ash      : null,
+    gluten:   qiForm.gluten   !== '' ? qiForm.gluten   : null,
   });
 };
 
