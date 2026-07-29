@@ -91,7 +91,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
 
           if (!authResponse.ok) {
-            throw new Error(`Auth service failed to respond correctly (Status: ${authResponse.status})`);
+            let errorDetail = '';
+            try {
+              const errBody = await authResponse.json();
+              errorDetail = errBody.details || errBody.sqlMessage || errBody.error || '';
+            } catch (_) {}
+            throw new Error(`Auth service failed to respond correctly (Status: ${authResponse.status})${errorDetail ? ': ' + errorDetail : ''}`);
           }
 
           const authJson = await authResponse.json();
